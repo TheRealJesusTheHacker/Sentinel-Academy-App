@@ -48,22 +48,31 @@ android {
         applicationId = "net.sentinelsafeguard.academyapp"
         minSdk = 26
         targetSdk = 35
-        // 1.0.0 (2026-11-10, owner order): the FOUNDATION of the
-        // third app in the Sentinel phone-app family — Sentinel
-        // Academy, the learning side of Sentinel Safeguard, as a
-        // native app with its own owner-approved mark (concept C,
-        // the academy hall; see brand/). This phase is everything
-        // that does not depend on the Academy server's app API:
-        // the Emerald Depth theme (every ColorScheme role explicit
-        // — the family's no-baseline-purple rule), the estate
-        // motion layer, the icon package pinned by test, a branded
-        // start screen, and the app-lock secure-store scaffolding
-        // (present, deliberately unwired). NO auth, NO data, NO
-        // lessons: those arrive in phase 2 against the real API
-        // contract (docs/API-CONTRACT.md). The paywall is a later
-        // phase entirely, by the owner's sequencing.
-        versionCode = 1
-        versionName = "1.0.0"
+        // 1.0.0 (2026-11-10, owner order): the FOUNDATION — theme,
+        // motion, icon package, start screen, lock scaffolding.
+        // 1.1.0 (2026-11-10, phase 2): the FULL app against the
+        // LIVE Academy App API (contract BUILD RECORD 2026-11-10).
+        // Signup/login/logout on the sessions-row token model
+        // (SecureStore, 7-day fixed TTL, clean re-login path;
+        // armed pending-confirmation shape handled); the PIN lock
+        // wired onto the stored session; catalog + enroll + promo
+        // entitlement; the road in the server's own order with
+        // server-computed states; lessons rendered natively from
+        // the six-type block vocabulary with /api/app/check
+        // server-side grading (payloads carry no answer/explain —
+        // there is no field here for one to land in); quizzes and
+        // finals on the paper/score protocol with the honest
+        // blurs count and the stable per-install sa-bid device id;
+        // certificate issue (morph/tick — trust-adjacent) with the
+        // ruled confetti celebration on the certificates screen
+        // only; streaks card ("a guide, not a requirement");
+        // verify via /api/app/verify ONLY (never the employer
+        // API), malformed refused client-side and presented
+        // identically to never-issued. access:"free" is display
+        // data only — NO commerce surface exists in this build;
+        // the paywall is a later phase by the owner's sequencing.
+        versionCode = 2
+        versionName = "1.1.0"
     }
 
     signingConfigs {

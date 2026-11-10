@@ -8,32 +8,43 @@ import java.security.MessageDigest
 import java.security.SecureRandom
 
 // ---------------------------------------------------------------------------
-// SecureStore — the family's on-device secret store, phase-1
-// scaffolding.
+// SecureStore — the family's on-device secret store.
 //
-// PHASE-1 STATUS, stated plainly: this class is PRESENT but
-// deliberately NOT WIRED to any surface. The foundation build has
-// no sign-in and no lock screen — there is nothing to protect yet,
-// and a lock gate guarding an empty app would be theatre. Phase 2
-// wires the lock (idle re-lock + PIN) on top of this store when
-// the Academy account and its data arrive.
+// PHASE 2: the account half has arrived, shaped by the real
+// contract (docs/API-CONTRACT.md, BUILD RECORD 2026-11-10): the
+// Academy session token IS a server-side `sessions` row — SHA-256
+// of the token at rest server-side, 7-day fixed TTL — and this
+// store is where the raw token lives on the device: inside
+// EncryptedSharedPreferences (AES-256-GCM values, AES-256-SIV
+// keys) whose master key lives in the Android Keystore. The
+// contract's client-storage expectation is stated in its §7:
+// "the session token belongs in Android Keystore-backed storage,
+// never in plaintext preferences or logs." This is that storage.
 //
-// What is here is the half that does not depend on the API
-// contract — the app-lock PIN verifier, ported from the family's
-// audited store:
+// Also stored here:
+// - the token's server-issued expiry (epoch seconds), so the app
+//   can take the clean re-login path at the 7-day boundary
+//   instead of discovering it mid-lesson;
+// - the stable per-install device id sent as the `sa-bid` cookie
+//   on API traffic (contract §7 — HARD requirement: without it,
+//   every app install shares the server's "no cookie" exam
+//   identity and strangers' cooldowns and collision checks
+//   couple). 128 bits of SecureRandom, generated once, hex.
+//   It is an exam-integrity binding, NOT an analytics or tracking
+//   identifier: it is sent only to the Academy itself, only in
+//   the slot the server's own web client uses.
+//
+// The app-lock PIN verifier (phase-1 scaffolding, now wired):
 // - The PIN itself is never stored. What is stored is a SHA-256
 //   hash of (salt || PIN), the salt 16 random bytes per PIN,
-//   inside EncryptedSharedPreferences (AES-256-GCM values,
-//   AES-256-SIV keys) whose master key lives in the Android
-//   Keystore. Verification compares in constant time
-//   (MessageDigest.isEqual) — a mistyped PIN and a tampered store
-//   are indistinguishable from outside, on purpose.
-// - The account-secret half of the family store (API credentials
-//   / tokens) arrives in phase 2, shaped by the real contract in
-//   docs/API-CONTRACT.md — it is not guessed here.
-// - Backup and device transfer EXCLUDE this store (see
-//   res/xml/backup_rules.xml + data_extraction_rules.xml): the
-//   verifier is device-bound by design.
+//   compared in constant time (MessageDigest.isEqual).
+// - The lock protects the stored session on this device — it is
+//   a device gate, not an account credential, and the app's copy
+//   says exactly that.
+//
+// Backup and device transfer EXCLUDE this store (see
+// res/xml/backup_rules.xml + data_extraction_rules.xml): token,
+// device id, and verifier are device-bound by design.
 // ---------------------------------------------------------------------------
 class SecureStore(context: Context) {
 
@@ -48,6 +59,39 @@ class SecureStore(context: Context) {
             EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
             EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
         )
+    }
+
+    // ---- Academy session (the token IS a sessions row) ----
+
+    fun saveSession(token: String, expiresAtEpochSec: Long) {
+        prefs.edit()
+            .putString(KEY_TOKEN, token)
+            .putLong(KEY_TOKEN_EXPIRES, expiresAtEpochSec)
+            .apply()
+    }
+
+    fun sessionToken(): String? = prefs.getString(KEY_TOKEN, null)?.takeIf { it.isNotBlank() }
+
+    /** Server-issued expiry of the stored token (epoch seconds),
+     *  or 0 when no session is stored. */
+    fun sessionExpiresAt(): Long = prefs.getLong(KEY_TOKEN_EXPIRES, 0L)
+
+    fun clearSession() {
+        prefs.edit().remove(KEY_TOKEN).remove(KEY_TOKEN_EXPIRES).apply()
+    }
+
+    // ---- Per-install device id (the sa-bid cookie value) ----
+
+    /** The stable per-install device id, generated once on first
+     *  ask and persisted with the install. 32 lowercase hex chars
+     *  (128 bits), the same shape the server's web client carries
+     *  in its `sa-bid` cookie (secrets.token_hex(16)). */
+    fun deviceId(): String {
+        prefs.getString(KEY_DEVICE_ID, null)?.let { if (it.length == 32) return it }
+        val bytes = ByteArray(16).also { SecureRandom().nextBytes(it) }
+        val id = bytes.joinToString("") { "%02x".format(it) }
+        prefs.edit().putString(KEY_DEVICE_ID, id).apply()
+        return id
     }
 
     // ---- App-lock PIN (verifier only; the PIN is never stored) ----
@@ -78,8 +122,10 @@ class SecureStore(context: Context) {
         prefs.edit().remove(KEY_PIN_HASH).remove(KEY_PIN_SALT).apply()
     }
 
-    /** Full wipe of the store — lock verifier and, in phase 2,
-     *  whatever credential material the contract brings. */
+    /** Full wipe of the store — session, device id, and lock
+     *  verifier. (A fresh device id is minted on next ask; the
+     *  server treats it as a new browser, which is the honest
+     *  consequence of wiping the install's identity.) */
     fun clearAll() {
         prefs.edit().clear().apply()
     }
@@ -94,5 +140,8 @@ class SecureStore(context: Context) {
         const val FILE_NAME = "sentinel_academy_secure_store"
         private const val KEY_PIN_HASH = "pin_hash"
         private const val KEY_PIN_SALT = "pin_salt"
+        private const val KEY_TOKEN = "session_token"
+        private const val KEY_TOKEN_EXPIRES = "session_expires_at"
+        private const val KEY_DEVICE_ID = "device_id"
     }
 }

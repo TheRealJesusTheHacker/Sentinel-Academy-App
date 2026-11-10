@@ -1,6 +1,17 @@
 # Academy App API Contract — seam document
 
-**Status: AWAITING the server-side contract.** The Academy today is a
+**Status: ANSWERED AND BUILT (phase 2, 2026-11-10).** The server-side
+contract of record is the Live side's
+`ACADEMY-APP-API-CONTRACT-2026-11-10.md`, whose BUILD RECORD shows all
+ten `/api/app/*` endpoints LIVE in production with the six reused
+endpoints verified under bearer auth. This document remains as the
+app-side seam record from phase 1; where its TODOs differ from the
+landed contract, the landed contract governs. The phase-2 client is
+`data/AcademyApi.kt`; its models (`data/Models.kt`) mirror the landed
+payloads field for field — including the absences (no answer/explain
+field exists for one to land in; no price/commerce key exists).
+
+**Status at phase 1: AWAITING the server-side contract.** The Academy today is a
 server-rendered web service with no app API. This document is the
 phase-2 build's contract of record: it fixes the six areas the app
 needs, records every fact already established from the Academy's

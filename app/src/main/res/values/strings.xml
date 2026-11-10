@@ -1,17 +1,181 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- All user-visible prose lives here, never hardcoded in a
      composable. English (this file) and Spanish (values-es) ship
-     in parity from day one — the family's pattern, and the
-     Academy itself serves both languages. -->
+     in parity — verified programmatically by StringsParityTest.
+     UI language follows the device; lesson content language
+     follows the TRACK (Spanish tracks are separate tracks), and
+     no string here pretends otherwise. -->
 <resources>
     <string name="app_name">Sentinel Academy</string>
-
-    <!-- Start screen (foundation phase). The status line is
-         honest on purpose: until the phase-2 connection to the
-         Academy ships, the app has no courses to open and says
-         so. -->
     <string name="logo_description">Sentinel Safeguard</string>
     <string name="academy_mark_description">Sentinel Academy</string>
-    <string name="start_status">Your Academy, in your pocket — soon. Courses, study streaks, and certificates live on the Academy site while this app is finished. When its connection to the Academy is ready, everything will be here.</string>
     <string name="start_version">Version %1$s</string>
+
+    <!-- Common -->
+    <string name="common_retry">Try again</string>
+    <string name="common_back">Back</string>
+    <string name="common_close">Close</string>
+    <string name="common_minutes">%1$d min</string>
+    <string name="error_network">Could not reach the Academy. Check your connection and try again.</string>
+
+    <!-- Auth -->
+    <string name="auth_login_title">Welcome back</string>
+    <string name="auth_signup_title">Create your account</string>
+    <string name="auth_sub">Sign in to your Sentinel Academy account — the same account as the Academy website.</string>
+    <string name="auth_email">Email</string>
+    <string name="auth_password">Password</string>
+    <string name="auth_display_name">Your name</string>
+    <string name="auth_login">Sign in</string>
+    <string name="auth_signup">Create account</string>
+    <string name="auth_to_signup">New to the Academy? Create an account</string>
+    <string name="auth_to_login">Already have an account? Sign in</string>
+    <string name="auth_track_label">START WITH</string>
+    <string name="auth_promo_optional">Entitlement code (optional)</string>
+    <string name="auth_error_password_short">Passwords need at least 10 characters.</string>
+    <string name="auth_error_password_long">That password is too long — 200 characters at most.</string>
+    <string name="auth_error_duplicate">An account with that email already exists. Try signing in instead.</string>
+    <string name="auth_notice_expired">Your session ended — sessions last 7 days. Sign in again to pick up right where you left off; your progress is saved on the Academy.</string>
+    <string name="auth_notice_signed_out">You are signed out on this device. Your other sessions are untouched.</string>
+    <string name="pending_title">Check your email</string>
+    <string name="pending_body">Your account was created. Open the confirmation email and follow its link to finish, then sign in here. If an account with that email already existed, the same message applies — nothing here reveals which.</string>
+    <string name="pending_back">Back to sign in</string>
+
+    <!-- App lock -->
+    <string name="lock_title">Academy locked</string>
+    <string name="lock_sub">Enter your app PIN. The lock protects your signed-in session on this device only — it is not your account password, and it never leaves this phone.</string>
+    <string name="lock_pin_hint">App PIN</string>
+    <string name="lock_unlock">Unlock</string>
+    <string name="lock_wrong">That PIN did not match.</string>
+    <string name="lock_signout">Sign out instead</string>
+
+    <!-- Tabs -->
+    <string name="nav_home">Home</string>
+    <string name="nav_tracks">Tracks</string>
+    <string name="nav_certs">Certificates</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Home -->
+    <string name="home_greeting">Hello, %1$s</string>
+    <string name="home_streak_title">STUDY STREAK</string>
+    <string name="streak_current">%1$d-day streak</string>
+    <string name="streak_longest">Longest: %1$d days</string>
+    <string name="streak_this_week">%1$d of %2$d lessons this week</string>
+    <string name="streak_goal_guide">The weekly goal of %1$d lessons is a guide, not a requirement.</string>
+    <string name="home_my_tracks">MY TRACKS</string>
+    <string name="home_no_tracks">You are not enrolled in a track yet. Pick one below — enrollment is instant.</string>
+    <string name="home_all_tracks">ALL TRACKS</string>
+
+    <!-- Catalog / tracks -->
+    <string name="track_free">Free</string>
+    <string name="track_enrolled">Enrolled</string>
+    <string name="track_enroll">Enroll</string>
+    <string name="track_lessons">%1$d lessons</string>
+    <string name="track_courses">%1$d courses</string>
+    <string name="track_progress">%1$d%% complete</string>
+    <string name="track_final_info">Final: %1$d questions · %2$d minutes · pass at %3$d%%</string>
+    <string name="track_view_road">View the road</string>
+
+    <!-- Road -->
+    <string name="road_core">THE ROAD</string>
+    <string name="road_electives">ELECTIVES — AFTER THE FINAL</string>
+    <string name="road_quiz">Course quiz</string>
+    <string name="road_quiz_passed">Passed · best %1$d%%</string>
+    <string name="road_quiz_cta">Take the quiz</string>
+    <string name="road_final">Final assessment</string>
+    <string name="road_final_passed">Final passed</string>
+    <string name="road_final_cta">Start the final</string>
+    <string name="road_practice_cta">Practice the final</string>
+    <string name="road_locked">Locked</string>
+    <string name="road_done">Done</string>
+    <string name="road_cooldown">Final retakes reopen in %1$s.</string>
+    <string name="road_cert_ready">Your certificate is ready to claim — see the result after your passing final, or your Certificates tab.</string>
+
+    <!-- Lesson -->
+    <string name="lesson_check_title">CHECK YOUR UNDERSTANDING</string>
+    <string name="lesson_practice_title">PRACTICE — EXAM STYLE</string>
+    <string name="lesson_submit">Submit answer</string>
+    <string name="lesson_correct">Correct.</string>
+    <string name="lesson_incorrect">Not quite — try again.</string>
+    <string name="lesson_done">Lesson complete</string>
+    <string name="lesson_next">Next lesson</string>
+    <string name="lesson_prev">Previous lesson</string>
+    <string name="lesson_exercise">HANDS-ON EXERCISE</string>
+    <string name="callout_tip">Tip</string>
+    <string name="callout_key">Key point</string>
+    <string name="callout_warn">Watch out</string>
+    <string name="lesson_select_first">Choose an answer first.</string>
+
+    <!-- Exams -->
+    <string name="exam_quiz">Course quiz</string>
+    <string name="exam_final">Final assessment</string>
+    <string name="exam_practice">Final practice</string>
+    <string name="exam_question_of">Question %1$d of %2$d</string>
+    <string name="exam_attempt">Attempt %1$d · %2$s</string>
+    <string name="exam_submit">Submit paper</string>
+    <string name="exam_answer_all">Answer every question before submitting — the paper must be complete.</string>
+    <string name="exam_pass">Passed</string>
+    <string name="exam_fail">Not passed</string>
+    <string name="exam_score_line">%1$d of %2$d correct · %3$d%%</string>
+    <string name="exam_pass_mark">Pass mark: %1$d%%</string>
+    <string name="exam_review">REVIEW</string>
+    <string name="exam_correct_was">Correct answer: %1$s</string>
+    <string name="exam_your_answer">Your answer: %1$s</string>
+    <string name="exam_breakdown">BY DOMAIN</string>
+    <string name="exam_missed">WORTH ANOTHER LOOK</string>
+    <string name="exam_late_title">Time expired</string>
+    <string name="exam_invalidated_title">Attempt invalidated</string>
+    <string name="exam_issue_cta">Claim your certificate</string>
+    <string name="exam_issued_title">Certificate issued</string>
+    <string name="exam_open_certificate">View certificate</string>
+    <string name="exam_done">Done</string>
+    <string name="exam_start_error">The paper could not be started.</string>
+
+    <!-- Certificates -->
+    <string name="certs_title">MY CERTIFICATES</string>
+    <string name="certs_empty">No certificates yet. Pass a track\'s final assessment and your certificate will be issued here — verifiable by anyone you share the code with.</string>
+    <string name="certs_issued_on">Issued %1$s</string>
+    <string name="certs_status_valid">Valid</string>
+    <string name="certs_status_revoked">Revoked</string>
+    <string name="verify_title">VERIFY A CERTIFICATE</string>
+    <string name="verify_hint">Enter a certificate code (for example SA-XXXXXX-XXXXXX).</string>
+    <string name="verify_code">Certificate code</string>
+    <string name="verify_cta">Verify</string>
+    <string name="verify_found">Certificate verified</string>
+    <string name="verify_not_found">No certificate matches that code.</string>
+    <string name="verify_name">Name: %1$s</string>
+    <string name="verify_track">Track: %1$s</string>
+    <string name="verify_issued">Issued: %1$s</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_account">ACCOUNT</string>
+    <string name="settings_name">Name</string>
+    <string name="settings_cert_name">Name on certificates</string>
+    <string name="settings_email">Email</string>
+    <string name="settings_promo_title">ENTITLEMENT CODE</string>
+    <string name="settings_promo_body">If Sentinel gave you an entitlement code, enter it here. A valid code is applied to your account permanently by the Academy server.</string>
+    <string name="settings_promo_hint">Code</string>
+    <string name="settings_promo_apply">Apply code</string>
+    <string name="settings_promo_active">An entitlement code is active on this account.</string>
+    <string name="settings_promo_applied">Code applied to your account.</string>
+    <string name="settings_promo_failed">That code was not accepted.</string>
+    <string name="settings_lock_title">APP LOCK</string>
+    <string name="settings_lock_body">A PIN lock for this app on this device. It protects your signed-in session from someone holding your phone — it is not your account password and is never sent anywhere.</string>
+    <string name="settings_lock_set">Set a PIN</string>
+    <string name="settings_lock_change">Change PIN</string>
+    <string name="settings_lock_remove">Remove PIN</string>
+    <string name="settings_lock_on">App lock is on.</string>
+    <string name="settings_lock_off">App lock is off.</string>
+    <string name="settings_pin_new">New PIN (4–6 digits)</string>
+    <string name="settings_pin_confirm">Repeat the PIN</string>
+    <string name="settings_pin_save">Save PIN</string>
+    <string name="settings_pin_mismatch">The two PINs did not match.</string>
+    <string name="settings_pin_short">Use 4 to 6 digits.</string>
+    <string name="settings_pin_saved">App lock PIN saved.</string>
+    <string name="settings_pin_removed">App lock removed.</string>
+    <string name="settings_signout">Sign out</string>
+    <string name="settings_signout_body">Signing out ends this device\'s session only. Your progress and certificates stay on your account.</string>
+    <string name="settings_about">ABOUT</string>
+    <string name="settings_server">Academy: academy.sentinelsafeguard.net</string>
+    <string name="settings_language_note">The app follows your device language. Each track teaches in its own language — Spanish tracks are separate tracks on the road.</string>
 </resources>

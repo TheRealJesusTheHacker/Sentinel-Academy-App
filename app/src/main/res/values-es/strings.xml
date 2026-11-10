@@ -1,10 +1,180 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Español — paridad completa con values/strings.xml. -->
+<!-- Español — paridad completa con values/strings.xml (misma
+     claves, mismos marcadores), verificada por StringsParityTest.
+     El idioma de la interfaz sigue el del dispositivo; el idioma
+     del contenido sigue la PISTA (las pistas en español son
+     pistas separadas). -->
 <resources>
     <string name="app_name">Sentinel Academy</string>
-
     <string name="logo_description">Sentinel Safeguard</string>
     <string name="academy_mark_description">Sentinel Academy</string>
-    <string name="start_status">Tu Academy, en tu bolsillo — muy pronto. Los cursos, las rachas de estudio y los certificados están en el sitio de la Academy mientras esta aplicación se termina. Cuando su conexión con la Academy esté lista, todo estará aquí.</string>
     <string name="start_version">Versión %1$s</string>
+
+    <!-- Common -->
+    <string name="common_retry">Reintentar</string>
+    <string name="common_back">Atrás</string>
+    <string name="common_close">Cerrar</string>
+    <string name="common_minutes">%1$d min</string>
+    <string name="error_network">No se pudo contactar a la Academy. Revisa tu conexión e inténtalo de nuevo.</string>
+
+    <!-- Auth -->
+    <string name="auth_login_title">Bienvenido de nuevo</string>
+    <string name="auth_signup_title">Crea tu cuenta</string>
+    <string name="auth_sub">Inicia sesión con tu cuenta de Sentinel Academy — la misma cuenta del sitio web de la Academy.</string>
+    <string name="auth_email">Correo electrónico</string>
+    <string name="auth_password">Contraseña</string>
+    <string name="auth_display_name">Tu nombre</string>
+    <string name="auth_login">Iniciar sesión</string>
+    <string name="auth_signup">Crear cuenta</string>
+    <string name="auth_to_signup">¿Nuevo en la Academy? Crea una cuenta</string>
+    <string name="auth_to_login">¿Ya tienes una cuenta? Inicia sesión</string>
+    <string name="auth_track_label">EMPIEZA CON</string>
+    <string name="auth_promo_optional">Código de acceso (opcional)</string>
+    <string name="auth_error_password_short">Las contraseñas necesitan al menos 10 caracteres.</string>
+    <string name="auth_error_password_long">Esa contraseña es demasiado larga — 200 caracteres como máximo.</string>
+    <string name="auth_error_duplicate">Ya existe una cuenta con ese correo. Intenta iniciar sesión.</string>
+    <string name="auth_notice_expired">Tu sesión terminó — las sesiones duran 7 días. Inicia sesión de nuevo para continuar donde ibas; tu progreso está guardado en la Academy.</string>
+    <string name="auth_notice_signed_out">Cerraste sesión en este dispositivo. Tus demás sesiones quedan intactas.</string>
+    <string name="pending_title">Revisa tu correo</string>
+    <string name="pending_body">Tu cuenta fue creada. Abre el correo de confirmación y sigue su enlace para terminar, luego inicia sesión aquí. Si ya existía una cuenta con ese correo, aplica el mismo mensaje — nada aquí revela cuál fue el caso.</string>
+    <string name="pending_back">Volver a iniciar sesión</string>
+
+    <!-- App lock -->
+    <string name="lock_title">Academy bloqueada</string>
+    <string name="lock_sub">Escribe tu PIN de la aplicación. El bloqueo protege tu sesión iniciada solo en este dispositivo — no es tu contraseña de la cuenta y nunca sale de este teléfono.</string>
+    <string name="lock_pin_hint">PIN de la aplicación</string>
+    <string name="lock_unlock">Desbloquear</string>
+    <string name="lock_wrong">Ese PIN no coincide.</string>
+    <string name="lock_signout">Cerrar sesión</string>
+
+    <!-- Tabs -->
+    <string name="nav_home">Inicio</string>
+    <string name="nav_tracks">Pistas</string>
+    <string name="nav_certs">Certificados</string>
+    <string name="nav_settings">Ajustes</string>
+
+    <!-- Home -->
+    <string name="home_greeting">Hola, %1$s</string>
+    <string name="home_streak_title">RACHA DE ESTUDIO</string>
+    <string name="streak_current">Racha de %1$d días</string>
+    <string name="streak_longest">La más larga: %1$d días</string>
+    <string name="streak_this_week">%1$d de %2$d lecciones esta semana</string>
+    <string name="streak_goal_guide">La meta semanal de %1$d lecciones es una guía, no un requisito.</string>
+    <string name="home_my_tracks">MIS PISTAS</string>
+    <string name="home_no_tracks">Aún no estás inscrito en ninguna pista. Elige una abajo — la inscripción es instantánea.</string>
+    <string name="home_all_tracks">TODAS LAS PISTAS</string>
+
+    <!-- Catalog / tracks -->
+    <string name="track_free">Gratis</string>
+    <string name="track_enrolled">Inscrito</string>
+    <string name="track_enroll">Inscribirme</string>
+    <string name="track_lessons">%1$d lecciones</string>
+    <string name="track_courses">%1$d cursos</string>
+    <string name="track_progress">%1$d%% completado</string>
+    <string name="track_final_info">Final: %1$d preguntas · %2$d minutos · se aprueba con %3$d%%</string>
+    <string name="track_view_road">Ver el camino</string>
+
+    <!-- Road -->
+    <string name="road_core">EL CAMINO</string>
+    <string name="road_electives">ELECTIVOS — DESPUÉS DEL FINAL</string>
+    <string name="road_quiz">Cuestionario del curso</string>
+    <string name="road_quiz_passed">Aprobado · mejor %1$d%%</string>
+    <string name="road_quiz_cta">Hacer el cuestionario</string>
+    <string name="road_final">Evaluación final</string>
+    <string name="road_final_passed">Final aprobado</string>
+    <string name="road_final_cta">Empezar el final</string>
+    <string name="road_practice_cta">Practicar el final</string>
+    <string name="road_locked">Bloqueado</string>
+    <string name="road_done">Hecho</string>
+    <string name="road_cooldown">El final se puede repetir en %1$s.</string>
+    <string name="road_cert_ready">Tu certificado está listo para reclamar — mira el resultado tras tu final aprobado, o tu pestaña de Certificados.</string>
+
+    <!-- Lesson -->
+    <string name="lesson_check_title">COMPRUEBA LO QUE APRENDISTE</string>
+    <string name="lesson_practice_title">PRÁCTICA — ESTILO EXAMEN</string>
+    <string name="lesson_submit">Enviar respuesta</string>
+    <string name="lesson_correct">Correcto.</string>
+    <string name="lesson_incorrect">Casi — inténtalo de nuevo.</string>
+    <string name="lesson_done">Lección completa</string>
+    <string name="lesson_next">Lección siguiente</string>
+    <string name="lesson_prev">Lección anterior</string>
+    <string name="lesson_exercise">EJERCICIO PRÁCTICO</string>
+    <string name="callout_tip">Consejo</string>
+    <string name="callout_key">Punto clave</string>
+    <string name="callout_warn">Ojo</string>
+    <string name="lesson_select_first">Primero elige una respuesta.</string>
+
+    <!-- Exams -->
+    <string name="exam_quiz">Cuestionario del curso</string>
+    <string name="exam_final">Evaluación final</string>
+    <string name="exam_practice">Práctica del final</string>
+    <string name="exam_question_of">Pregunta %1$d de %2$d</string>
+    <string name="exam_attempt">Intento %1$d · %2$s</string>
+    <string name="exam_submit">Entregar el examen</string>
+    <string name="exam_answer_all">Responde todas las preguntas antes de entregar — el examen debe estar completo.</string>
+    <string name="exam_pass">Aprobado</string>
+    <string name="exam_fail">No aprobado</string>
+    <string name="exam_score_line">%1$d de %2$d correctas · %3$d%%</string>
+    <string name="exam_pass_mark">Nota para aprobar: %1$d%%</string>
+    <string name="exam_review">REPASO</string>
+    <string name="exam_correct_was">Respuesta correcta: %1$s</string>
+    <string name="exam_your_answer">Tu respuesta: %1$s</string>
+    <string name="exam_breakdown">POR DOMINIO</string>
+    <string name="exam_missed">VALE OTRA MIRADA</string>
+    <string name="exam_late_title">El tiempo terminó</string>
+    <string name="exam_invalidated_title">Intento invalidado</string>
+    <string name="exam_issue_cta">Reclamar tu certificado</string>
+    <string name="exam_issued_title">Certificado emitido</string>
+    <string name="exam_open_certificate">Ver certificado</string>
+    <string name="exam_done">Terminar</string>
+    <string name="exam_start_error">El examen no pudo empezar.</string>
+
+    <!-- Certificates -->
+    <string name="certs_title">MIS CERTIFICADOS</string>
+    <string name="certs_empty">Aún no tienes certificados. Aprueba la evaluación final de una pista y tu certificado se emitirá aquí — verificable por quien reciba el código.</string>
+    <string name="certs_issued_on">Emitido el %1$s</string>
+    <string name="certs_status_valid">Válido</string>
+    <string name="certs_status_revoked">Revocado</string>
+    <string name="verify_title">VERIFICAR UN CERTIFICADO</string>
+    <string name="verify_hint">Escribe un código de certificado (por ejemplo SA-XXXXXX-XXXXXX).</string>
+    <string name="verify_code">Código del certificado</string>
+    <string name="verify_cta">Verificar</string>
+    <string name="verify_found">Certificado verificado</string>
+    <string name="verify_not_found">Ningún certificado coincide con ese código.</string>
+    <string name="verify_name">Nombre: %1$s</string>
+    <string name="verify_track">Pista: %1$s</string>
+    <string name="verify_issued">Emitido: %1$s</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Ajustes</string>
+    <string name="settings_account">CUENTA</string>
+    <string name="settings_name">Nombre</string>
+    <string name="settings_cert_name">Nombre en los certificados</string>
+    <string name="settings_email">Correo electrónico</string>
+    <string name="settings_promo_title">CÓDIGO DE ACCESO</string>
+    <string name="settings_promo_body">Si Sentinel te dio un código de acceso, escríbelo aquí. El servidor de la Academy aplica un código válido a tu cuenta de forma permanente.</string>
+    <string name="settings_promo_hint">Código</string>
+    <string name="settings_promo_apply">Aplicar código</string>
+    <string name="settings_promo_active">Un código de acceso está activo en esta cuenta.</string>
+    <string name="settings_promo_applied">Código aplicado a tu cuenta.</string>
+    <string name="settings_promo_failed">Ese código no fue aceptado.</string>
+    <string name="settings_lock_title">BLOQUEO DE LA APLICACIÓN</string>
+    <string name="settings_lock_body">Un bloqueo con PIN para esta aplicación en este dispositivo. Protege tu sesión iniciada de quien tenga tu teléfono — no es tu contraseña de la cuenta y nunca se envía a ningún lado.</string>
+    <string name="settings_lock_set">Crear un PIN</string>
+    <string name="settings_lock_change">Cambiar PIN</string>
+    <string name="settings_lock_remove">Quitar PIN</string>
+    <string name="settings_lock_on">El bloqueo de la aplicación está activado.</string>
+    <string name="settings_lock_off">El bloqueo de la aplicación está desactivado.</string>
+    <string name="settings_pin_new">PIN nuevo (4–6 dígitos)</string>
+    <string name="settings_pin_confirm">Repite el PIN</string>
+    <string name="settings_pin_save">Guardar PIN</string>
+    <string name="settings_pin_mismatch">Los dos PIN no coincidieron.</string>
+    <string name="settings_pin_short">Usa de 4 a 6 dígitos.</string>
+    <string name="settings_pin_saved">PIN de bloqueo guardado.</string>
+    <string name="settings_pin_removed">Bloqueo de la aplicación eliminado.</string>
+    <string name="settings_signout">Cerrar sesión</string>
+    <string name="settings_signout_body">Cerrar sesión termina solo la sesión de este dispositivo. Tu progreso y tus certificados quedan en tu cuenta.</string>
+    <string name="settings_about">ACERCA DE</string>
+    <string name="settings_server">Academy: academy.sentinelsafeguard.net</string>
+    <string name="settings_language_note">La aplicación sigue el idioma de tu dispositivo. Cada pista enseña en su propio idioma — las pistas en español son pistas separadas en el camino.</string>
 </resources>

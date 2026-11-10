@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Phase 1 (foundation): the app makes NO network calls and
-         asks for NO permissions. The INTERNET permission arrives
-         in phase 2, together with the Academy API client it
-         exists for — permissions land with their purpose, never
-         ahead of it. -->
+    <!-- Phase 2: INTERNET is the app's ONLY permission, and it
+         exists for exactly one purpose — the Academy API client
+         (data/AcademyApi.kt) talking HTTPS to
+         academy.sentinelsafeguard.net. No other permission is
+         declared; the app has no camera, storage, contacts, or
+         location surface to justify one. -->
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:name=".AcademyApplication"
