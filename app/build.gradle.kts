@@ -166,6 +166,35 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.activity:activity-compose:1.9.3")
+    // Lifecycle anchors at the family's pinned 2.8.7 (the Mail App's
+    // pattern). The code genuinely uses both: viewModel() from
+    // lifecycle-viewmodel-compose (AppRoot) and the lifecycle runtime
+    // the Compose lifecycle owner stands on (AndroidViewModel /
+    // viewModelScope in AcademyViewModel). Without these anchors the
+    // graph settles on the raw transitive requests (lifecycle 2.6.x,
+    // arch.core 2.1.0) — versions that are neither pinned in
+    // gradle/verification-metadata.xml nor carried by the family
+    // seed repo, which is exactly how the first Linode release build
+    // failed at dependency resolution (2026-11-10).
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
+
+    constraints {
+        // Pin the rest of the drift to the versions already pinned
+        // in gradle/verification-metadata.xml (lifecycle 2.8.7
+        // family, arch.core 2.2.0). Constraints only — no new
+        // dependencies, no pin changes, no downgrades: every module
+        // named here is already requested transitively at an older
+        // version (savedstate -> arch.core 2.1.0; the 2.6.x lifecycle
+        // requests from activity-compose / activity-ktx / emoji2 and
+        // the 2.6.x family's own alignment constraints).
+        implementation("androidx.lifecycle:lifecycle-common:2.8.7")
+        implementation("androidx.lifecycle:lifecycle-common-java8:2.8.7")
+        implementation("androidx.lifecycle:lifecycle-process:2.8.7")
+        implementation("androidx.lifecycle:lifecycle-runtime:2.8.7")
+        implementation("androidx.arch.core:core-common:2.2.0")
+        implementation("androidx.arch.core:core-runtime:2.2.0")
+    }
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
 
