@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Español — paridad completa con values/strings.xml. -->
+<resources>
+    <string name="app_name">Sentinel Academy</string>
+
+    <string name="logo_description">Sentinel Safeguard</string>
+    <string name="academy_mark_description">Sentinel Academy</string>
+    <string name="start_status">Tu Academy, en tu bolsillo — muy pronto. Los cursos, las rachas de estudio y los certificados están en el sitio de la Academy mientras esta aplicación se termina. Cuando su conexión con la Academy esté lista, todo estará aquí.</string>
+    <string name="start_version">Versión %1$s</string>
+</resources>

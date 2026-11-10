@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android Auto Backup rules (API 26-30; API 31+ uses
+     data_extraction_rules.xml). The app-lock scaffolding's
+     encrypted store (SecureStore) is EXCLUDED from every backup
+     and transfer: the PIN verifier inside it is device-bound by
+     design — a verifier restored onto another device would be a
+     verifier detached from the device it protects. -->
+<full-backup-content>
+    <exclude domain="sharedpref" path="sentinel_academy_secure_store.xml" />
+</full-backup-content>

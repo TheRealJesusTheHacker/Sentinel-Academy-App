@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- All user-visible prose lives here, never hardcoded in a
+     composable. English (this file) and Spanish (values-es) ship
+     in parity from day one — the family's pattern, and the
+     Academy itself serves both languages. -->
+<resources>
+    <string name="app_name">Sentinel Academy</string>
+
+    <!-- Start screen (foundation phase). The status line is
+         honest on purpose: until the phase-2 connection to the
+         Academy ships, the app has no courses to open and says
+         so. -->
+    <string name="logo_description">Sentinel Safeguard</string>
+    <string name="academy_mark_description">Sentinel Academy</string>
+    <string name="start_status">Your Academy, in your pocket — soon. Courses, study streaks, and certificates live on the Academy site while this app is finished. When its connection to the Academy is ready, everything will be here.</string>
+    <string name="start_version">Version %1$s</string>
+</resources>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The window shell only paints the pre-Compose frame; every
+         real surface in the app is drawn by the Compose theme.
+         The base is the platform parent on purpose: the app is a
+         single Compose activity and no platform widgets render, so
+         a Material platform parent would only import baseline
+         theme values (the family's no-baseline-purple rule lives
+         in the Compose scheme, ui/theme/Theme.kt, where EVERY
+         ColorScheme role is set explicitly). The window
+         background matches the Compose background so the first
+         frame never flashes. -->
+    <style name="Theme.SentinelAcademyApp" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">#060806</item>
+    </style>
+</resources>

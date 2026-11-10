@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Sentinel Academy App adaptive icon — owner-approved concept C
+     (2026-11-10): the academy hall — a triangular pediment over two
+     columns with an open book between them, emerald line work on
+     near-black. The foreground is the approved artwork itself,
+     uniformly inset over the estate near-black background; the
+     mark stays clear of every mask shape (circle check rendered
+     and verified at build time). Master artwork preserved in
+     brand/. In-app company surfaces use the real Sentinel
+     Safeguard logo; this mark is the Academy product icon only. -->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/ic_launcher_background" />
+    <foreground android:drawable="@mipmap/ic_launcher_foreground" />
+</adaptive-icon>
