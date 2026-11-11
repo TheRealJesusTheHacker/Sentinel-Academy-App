@@ -88,6 +88,7 @@ fun AuthScreen(vm: AcademyViewModel, reduced: Boolean) {
 
     val passwordShort = stringResource(R.string.auth_error_password_short)
     val passwordLong = stringResource(R.string.auth_error_password_long)
+    val fillFields = stringResource(R.string.signup_fill_fields)
 
     val serverError = when (vm.authError) {
         AcademyViewModel.NETWORK_ERROR -> stringResource(R.string.error_network)
@@ -145,7 +146,14 @@ fun AuthScreen(vm: AcademyViewModel, reduced: Boolean) {
             Spacer(Modifier.height(16.dp))
         }
 
-        Column(modifier = Modifier.graphicsLayer { translationX = shake.x }) {
+        Column(modifier = Modifier.graphicsLayer {
+            // Reduced motion: shake.x carries the alpha factor
+            // (Motion.kt's documented contract); full motion: it
+            // carries pixel travel. (Audit 2026-11-11: both auth
+            // call sites applied it as pixels, which made the
+            // reduced-motion signal a sub-pixel drift.)
+            if (reduced) alpha = shake.x else translationX = shake.x
+        }) {
             if (signingUp) {
                 AcademyTextField(displayName, { displayName = it }, stringResource(R.string.auth_display_name))
                 Spacer(Modifier.height(12.dp))
@@ -165,12 +173,12 @@ fun AuthScreen(vm: AcademyViewModel, reduced: Boolean) {
                 Spacer(Modifier.height(8.dp))
                 val tracks = vm.catalog?.tracks?.filter { it.slug in SIGNUP_TRACKS } ?: emptyList()
                 if (tracks.isEmpty()) {
-                    TrackChoice("Best Practice", track == "best-practice", reduced) { track = "best-practice" }
+                    TrackChoice(0, "Best Practice", track == "best-practice", reduced) { track = "best-practice" }
                     Spacer(Modifier.height(8.dp))
-                    TrackChoice("Expert", track == "expert", reduced) { track = "expert" }
+                    TrackChoice(1, "Expert", track == "expert", reduced) { track = "expert" }
                 } else {
-                    tracks.forEach { t ->
-                        TrackChoice(t.name, track == t.slug, reduced) { track = t.slug }
+                    tracks.forEachIndexed { idx, t ->
+                        TrackChoice(idx, t.name, track == t.slug, reduced) { track = t.slug }
                         Spacer(Modifier.height(8.dp))
                     }
                 }
@@ -195,7 +203,11 @@ fun AuthScreen(vm: AcademyViewModel, reduced: Boolean) {
                 when {
                     problem == "short" -> { localError = passwordShort; shakeTrigger++ }
                     problem == "long" -> { localError = passwordLong; shakeTrigger++ }
-                    signingUp && (displayName.isBlank() || email.isBlank()) -> shakeTrigger++
+                    // A shake alone doesn't say what is missing
+                    // (audit 2026-11-11): name the fields.
+                    signingUp && (displayName.isBlank() || email.isBlank()) -> {
+                        localError = fillFields; shakeTrigger++
+                    }
                     signingUp -> vm.signup(email, password, displayName, track, promo.ifBlank { null })
                     else -> vm.login(email, password)
                 }
@@ -214,9 +226,12 @@ fun AuthScreen(vm: AcademyViewModel, reduced: Boolean) {
 private val SIGNUP_TRACKS = setOf("best-practice", "expert")
 
 @Composable
-private fun TrackChoice(name: String, selected: Boolean, reduced: Boolean, onClick: () -> Unit) {
+private fun TrackChoice(index: Int, name: String, selected: Boolean, reduced: Boolean, onClick: () -> Unit) {
+    // The badge index is the row's POSITION (audit 2026-11-11):
+    // it used to be guessed from the track's name prefix, which
+    // breaks the moment a track is renamed or localized.
     ChoiceRow(
-        index = if (name.startsWith("Expert")) 1 else 0,
+        index = index,
         text = name,
         selected = selected,
         onClick = onClick,
@@ -294,7 +309,9 @@ fun LockScreen(vm: AcademyViewModel, reduced: Boolean) {
             textAlign = TextAlign.Center,
         )
         Spacer(Modifier.height(24.dp))
-        Column(modifier = Modifier.graphicsLayer { translationX = shake.x }) {
+        Column(modifier = Modifier.graphicsLayer {
+            if (reduced) alpha = shake.x else translationX = shake.x
+        }) {
             AcademyTextField(
                 pin, { pin = it.filter { c -> c.isDigit() }.take(6) },
                 stringResource(R.string.lock_pin_hint),

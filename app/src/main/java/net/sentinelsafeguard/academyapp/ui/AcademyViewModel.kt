@@ -10,6 +10,7 @@ import kotlinx.coroutines.launch
 import net.sentinelsafeguard.academyapp.data.AcademyApi
 import net.sentinelsafeguard.academyapp.data.ApiResult
 import net.sentinelsafeguard.academyapp.data.Catalog
+import net.sentinelsafeguard.academyapp.data.CatalogCache
 import net.sentinelsafeguard.academyapp.data.CheckResult
 import net.sentinelsafeguard.academyapp.data.IssueResult
 import net.sentinelsafeguard.academyapp.data.LessonPayload
@@ -43,7 +44,17 @@ enum class AppPhase { BOOT, LOCKED, AUTH, PENDING_CONFIRM, MAIN }
 class AcademyViewModel(app: Application) : AndroidViewModel(app) {
 
     val store: SecureStore = SecureStore(app)
-    private val api = AcademyApi(store)
+
+    /** The anonymous catalog's validator cache (CATALOG-ETAG
+     *  2026-11-11): public content only, integrity-pinned by its
+     *  SHA-256 ETag. It is deliberately NOT session-scoped — it
+     *  holds no account data, so it survives sign-out and speeds
+     *  the next launch's auth backdrop; the per-user overlay
+     *  catalog is never written to it. */
+    private val api = AcademyApi(
+        store,
+        CatalogCache(java.io.File(app.filesDir, "catalog_cache")),
+    )
 
     var phase by mutableStateOf(AppPhase.BOOT)
         private set
@@ -66,6 +77,14 @@ class AcademyViewModel(app: Application) : AndroidViewModel(app) {
     var streaks by mutableStateOf<Streaks?>(null)
         private set
     var homeError by mutableStateOf<String?>(null)
+        private set
+
+    /** True when the last catalog fetch failed (audit 2026-11-11):
+     *  the catalog legs used to fail silently, which left Home
+     *  claiming "not enrolled in a track yet" and Tracks/Road
+     *  spinning forever on a dead connection. Screens render an
+     *  honest error + retry from this flag instead. */
+    var catalogFailed by mutableStateOf(false)
         private set
 
     /** Set when a certificate is freshly issued; the certificates
@@ -116,7 +135,13 @@ class AcademyViewModel(app: Application) : AndroidViewModel(app) {
 
     private fun loadCatalog() {
         viewModelScope.launch {
-            (api.catalog() as? ApiResult.Ok)?.let { catalog = it.value }
+            when (val r = api.catalog()) {
+                is ApiResult.Ok -> {
+                    catalog = r.value
+                    catalogFailed = false
+                }
+                is ApiResult.Err -> catalogFailed = true
+            }
         }
     }
 
@@ -130,19 +155,45 @@ class AcademyViewModel(app: Application) : AndroidViewModel(app) {
                 }
                 is ApiResult.Err -> {
                     if (r.status == 401) return@launch expireSession()
-                    homeError = r.serverMessage
+                    // A transport failure carries no server
+                    // message; surface the network sentinel rather
+                    // than failing invisibly (audit 2026-11-11).
+                    homeError = r.serverMessage ?: NETWORK_ERROR
                 }
             }
-            (api.catalog() as? ApiResult.Ok)?.let { catalog = it.value }
+            when (val r = api.catalog()) {
+                is ApiResult.Ok -> {
+                    catalog = r.value
+                    catalogFailed = false
+                }
+                is ApiResult.Err -> catalogFailed = true
+            }
             (api.streaks() as? ApiResult.Ok)?.let { streaks = it.value }
             busy = false
         }
+    }
+
+    /** Session-scoped state must not outlive the session (audit
+     *  2026-11-11): a pending celebration, a verify result, an
+     *  unclaimed issue, a live paper or the previous account's
+     *  overlay catalog leaking into the NEXT account's session on
+     *  the same process would show one learner another's state. */
+    private fun clearSessionScopedState() {
+        celebrateCode = null
+        clearVerify()
+        clearIssue()
+        clearExam()
+        cooldownSeconds = 0
+        homeError = null
+        catalogFailed = false
+        catalog = null
     }
 
     private fun expireSession() {
         store.clearSession()
         me = null
         streaks = null
+        clearSessionScopedState()
         authNotice = AuthNotice.SESSION_EXPIRED
         phase = AppPhase.AUTH
         busy = false
@@ -215,6 +266,7 @@ class AcademyViewModel(app: Application) : AndroidViewModel(app) {
             runCatching { api.logout() }
             store.clearSession()
             me = null; streaks = null
+            clearSessionScopedState()
             authNotice = AuthNotice.SIGNED_OUT
             phase = AppPhase.AUTH
             busy = false
@@ -311,9 +363,23 @@ class AcademyViewModel(app: Application) : AndroidViewModel(app) {
     var cooldownSeconds by mutableStateOf(0)
         private set
 
+    /** The scored paper and the answers submitted with it,
+     *  retained so the result screen can render the full quiz
+     *  review (question text, your answer, the correct answer —
+     *  audit 2026-11-11, capability gap: the payloads always
+     *  carried everything needed; the app threw the paper away
+     *  at score time). The server's review still reveals the
+     *  correct positions only AFTER grading; nothing here grades
+     *  or pre-reveals. Cleared with the exam. */
+    var reviewPaper by mutableStateOf<Paper?>(null)
+        private set
+    var reviewAnswers by mutableStateOf<List<Int>>(emptyList())
+        private set
+
     fun startExam(track: String, kind: String, course: String?, mode: String?) {
         viewModelScope.launch {
             busy = true; examError = null; scoreResult = null
+            reviewPaper = null; reviewAnswers = emptyList()
             when (val r = api.paper(track, kind, course, mode)) {
                 is ApiResult.Ok -> {
                     paper = r.value
@@ -347,15 +413,21 @@ class AcademyViewModel(app: Application) : AndroidViewModel(app) {
     fun submitExam(answers: List<Int>) {
         val p = paper ?: return
         viewModelScope.launch {
-            busy = true
+            busy = true; examError = null
             when (val r = api.score(p.paper, answers, examBlurs)) {
                 is ApiResult.Ok -> {
                     scoreResult = r.value
+                    reviewPaper = p
+                    reviewAnswers = answers
                     paper = null
                     refreshAll()
                 }
                 is ApiResult.Err -> {
                     if (r.status == 401) return@launch expireSession()
+                    // The paper stays on screen with the answers
+                    // intact; PaperView renders this error above
+                    // the submit button (audit 2026-11-11 — a
+                    // failed score used to vanish silently).
                     examError = r.serverMessage ?: NETWORK_ERROR
                 }
             }
@@ -365,6 +437,7 @@ class AcademyViewModel(app: Application) : AndroidViewModel(app) {
 
     fun clearExam() {
         paper = null; scoreResult = null; examError = null
+        reviewPaper = null; reviewAnswers = emptyList()
     }
 
     // ---------------- Certificates ----------------
@@ -407,7 +480,16 @@ class AcademyViewModel(app: Application) : AndroidViewModel(app) {
             when (val r = api.verify(code)) {
                 is ApiResult.Ok -> verifyResult = r.value
                 is ApiResult.Err -> verifyResult = VerifyResult(
-                    found = false, status = "not_found", valid = false,
+                    // NOT "not_found" (audit 2026-11-11): a 429
+                    // means the shared budget was spent BEFORE
+                    // any lookup ran, and a transport failure
+                    // likewise performed none. Claiming "no
+                    // certificate matches that code" for a lookup
+                    // that never happened would be a false
+                    // statement; the UI presents these as their
+                    // own states instead.
+                    found = false, status = "error", valid = false,
+                    lookupError = if (r.status == 429) "rate" else "net",
                 )
             }
             verifyBusy = false

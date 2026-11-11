@@ -23,8 +23,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import net.sentinelsafeguard.academyapp.R
+import net.sentinelsafeguard.academyapp.data.durationParts
 import net.sentinelsafeguard.academyapp.ui.theme.SentinelContainer
 import net.sentinelsafeguard.academyapp.ui.theme.SentinelContainerHigh
 import net.sentinelsafeguard.academyapp.ui.theme.SentinelDanger
@@ -235,5 +238,28 @@ fun ProgressLine(fraction: Float, modifier: Modifier = Modifier) {
 fun LoadingBlock(modifier: Modifier = Modifier) {
     Box(modifier = modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
         CircularProgressIndicator(color = SentinelGreen, strokeWidth = 2.dp)
+    }
+}
+
+/** Humanized duration for cooldowns (audit 2026-11-11): the
+ *  two largest units from durationParts, with localized unit
+ *  labels — "7d 0h", "5h 12min", "12min", "45s". Replaces the
+ *  raw m:ss clock on cooldown surfaces, where it misread badly
+ *  past an hour (a 7-day invalidation cooldown showed
+ *  "10080:00"). Exam countdowns keep formatClock — minutes and
+ *  seconds are the honest units there. */
+@Composable
+fun durationText(totalSeconds: Int): String {
+    val parts = durationParts(totalSeconds)
+    val d = parts[0]; val h = parts[1]; val m = parts[2]; val s = parts[3]
+    val day = stringResource(R.string.unit_day)
+    val hour = stringResource(R.string.unit_hour)
+    val min = stringResource(R.string.unit_min)
+    val sec = stringResource(R.string.unit_sec)
+    return when {
+        d > 0 -> "$d$day $h$hour"
+        h > 0 -> "$h$hour $m$min"
+        m > 0 -> "$m$min"
+        else -> "$s$sec"
     }
 }

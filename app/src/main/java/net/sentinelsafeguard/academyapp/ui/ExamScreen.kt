@@ -91,7 +91,7 @@ fun ExamScreen(
                     if (vm.cooldownSeconds > 0) {
                         Spacer(Modifier.height(10.dp))
                         Text(
-                            text = stringResource(R.string.road_cooldown, formatClock(vm.cooldownSeconds)),
+                            text = stringResource(R.string.road_cooldown, durationText(vm.cooldownSeconds)),
                             style = MaterialTheme.typography.bodyMedium,
                             color = SentinelAmber,
                         )
@@ -188,6 +188,18 @@ private fun PaperView(vm: AcademyViewModel, paper: Paper, reduced: Boolean) {
                     text = stringResource(R.string.exam_answer_all),
                     style = MaterialTheme.typography.bodySmall,
                     color = SentinelMuted,
+                )
+                Spacer(Modifier.height(8.dp))
+            }
+            // A failed score call keeps the paper on screen; its
+            // error renders here, above the button it belongs to
+            // (audit 2026-11-11 — it used to be set on the VM and
+            // rendered nowhere while a paper was live).
+            vm.examError?.let { err ->
+                ErrorLine(
+                    if (err == AcademyViewModel.NETWORK_ERROR) {
+                        stringResource(R.string.error_network)
+                    } else err,
                 )
                 Spacer(Modifier.height(8.dp))
             }
@@ -309,12 +321,43 @@ private fun ScoreResultView(
             }
             items(result.review.size) { i ->
                 val r = result.review[i]
-                Column(Modifier.padding(bottom = 10.dp)) {
+                // Full review (audit 2026-11-11, capability gap):
+                // the VM retains the scored paper and the
+                // submitted answers, so each item can show the
+                // question itself, what the learner answered, and
+                // — on a miss — the correct answer, all revealed
+                // by the server only after grading. When the
+                // retained paper is unavailable (e.g. state was
+                // cleared), the item degrades to the number +
+                // explanation rather than disappearing.
+                val q = vm.reviewPaper?.questions?.getOrNull(i)
+                val yourIdx = vm.reviewAnswers.getOrNull(i)
+                Column(Modifier.padding(bottom = 12.dp)) {
                     Text(
                         text = stringResource(R.string.exam_question_of, i + 1, result.review.size),
                         style = MaterialTheme.typography.labelLarge,
                         color = if (r.correct) SentinelGreen else SentinelDanger,
                     )
+                    if (q != null) {
+                        Spacer(Modifier.height(4.dp))
+                        Text(q.q, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onBackground)
+                        if (yourIdx != null && q.choices.indices.contains(yourIdx)) {
+                            Spacer(Modifier.height(4.dp))
+                            Text(
+                                text = stringResource(R.string.exam_your_answer, q.choices[yourIdx]),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = if (r.correct) SentinelGreen else SentinelDanger,
+                            )
+                        }
+                        if (!r.correct && q.choices.indices.contains(r.answer)) {
+                            Spacer(Modifier.height(2.dp))
+                            Text(
+                                text = stringResource(R.string.exam_correct_was, q.choices[r.answer]),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = SentinelGreen,
+                            )
+                        }
+                    }
                     r.explain?.let {
                         Spacer(Modifier.height(2.dp))
                         Text(it, style = MaterialTheme.typography.bodyMedium, color = SentinelMuted)
@@ -340,16 +383,22 @@ private fun ScoreResultView(
                                 color = SentinelGreen,
                             )
                         }
-                        Spacer(Modifier.height(12.dp))
-                        GhostButton(
-                            text = stringResource(R.string.exam_open_certificate),
-                            reduced = reduced,
-                            modifier = Modifier.fillMaxWidth(),
-                            onClick = {
-                                val url = AcademyApi.BASE_URL + vm.issueResult!!.url
-                                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
-                            },
-                        )
+                        // No button without a destination (audit
+                        // 2026-11-11): the certificate URL comes
+                        // from the issue response; an empty one
+                        // would open the bare base URL.
+                        if (vm.issueResult!!.url.isNotBlank()) {
+                            Spacer(Modifier.height(12.dp))
+                            GhostButton(
+                                text = stringResource(R.string.exam_open_certificate),
+                                reduced = reduced,
+                                modifier = Modifier.fillMaxWidth(),
+                                onClick = {
+                                    val url = AcademyApi.BASE_URL + vm.issueResult!!.url
+                                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                                },
+                            )
+                        }
                         Spacer(Modifier.height(8.dp))
                         PrimaryButton(
                             text = stringResource(R.string.nav_certs),

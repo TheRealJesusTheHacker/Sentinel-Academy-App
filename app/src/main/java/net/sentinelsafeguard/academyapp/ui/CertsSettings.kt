@@ -173,6 +173,19 @@ private fun VerifySection(vm: AcademyViewModel, reduced: Boolean) {
             Spacer(Modifier.height(12.dp))
             Text(stringResource(R.string.verify_not_found), style = MaterialTheme.typography.bodyMedium, color = SentinelMuted)
         }
+        result != null && result.lookupError != null -> {
+            // No lookup happened (audit 2026-11-11): the shared
+            // budget was spent (429) or the Academy could not be
+            // reached. Neither may wear the "no certificate
+            // matches" sentence — that claim belongs only to a
+            // lookup that actually ran.
+            Spacer(Modifier.height(12.dp))
+            ErrorLine(
+                stringResource(
+                    if (result.lookupError == "rate") R.string.verify_error_rate else R.string.error_network,
+                ),
+            )
+        }
         result != null && result.found -> {
             Spacer(Modifier.height(12.dp))
             SentinelCard(modifier = Modifier.fillMaxWidth()) {
@@ -183,7 +196,13 @@ private fun VerifySection(vm: AcademyViewModel, reduced: Boolean) {
                 }
                 Spacer(Modifier.height(8.dp))
                 result.name?.let { Text(stringResource(R.string.verify_name, it), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground) }
-                result.certificate?.let { Text(stringResource(R.string.verify_track, it), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground) }
+                // Labels match the payload (audit 2026-11-11):
+                // `certificate` is the certificate's title and
+                // `track_name` the track's name — the card used
+                // to print the title under the "Track:" label
+                // and never show the track name at all.
+                result.certificate?.let { Text(stringResource(R.string.verify_certificate, it), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground) }
+                (result.trackName ?: result.track)?.let { Text(stringResource(R.string.verify_track, it), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground) }
                 result.issued?.let { Text(stringResource(R.string.verify_issued, it), style = MaterialTheme.typography.bodyMedium, color = SentinelMuted) }
             }
         }
@@ -262,7 +281,11 @@ fun SettingsScreen(vm: AcademyViewModel, reduced: Boolean) {
                     if (promoCode.isNotBlank()) {
                         vm.applyPromo(promoCode) { ok, msg ->
                             promoOk = ok
-                            promoNote = msg
+                            // A failure with no server message
+                            // (transport) still gets its sentence
+                            // (audit 2026-11-11): the generic
+                            // not-accepted line, never silence.
+                            promoNote = if (ok) null else (msg ?: "")
                         }
                     }
                 },
@@ -271,7 +294,7 @@ fun SettingsScreen(vm: AcademyViewModel, reduced: Boolean) {
             val failed = stringResource(R.string.settings_promo_failed)
             when {
                 promoOk -> { Spacer(Modifier.height(8.dp)); Text(applied, style = MaterialTheme.typography.bodyMedium, color = SentinelGreen) }
-                promoNote != null -> { Spacer(Modifier.height(8.dp)); ErrorLine(promoNote ?: failed) }
+                promoNote != null -> { Spacer(Modifier.height(8.dp)); ErrorLine(promoNote?.ifBlank { failed } ?: failed) }
             }
         }
         Spacer(Modifier.height(20.dp))

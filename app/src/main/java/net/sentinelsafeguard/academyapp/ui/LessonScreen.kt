@@ -282,6 +282,12 @@ private fun CheckQuestion(vm: AcademyViewModel, lesson: LessonPayload, reduced: 
     var selected by remember(lesson.id) { mutableStateOf<Int?>(null) }
     var result by remember(lesson.id) { mutableStateOf<CheckResult?>(null) }
     var shakeTrigger by remember(lesson.id) { mutableStateOf(0) }
+    // Feedback for the two silent paths (audit 2026-11-11): a
+    // blank submit used to only shake, and a failed round trip
+    // (no grading happened) used to change nothing on screen at
+    // all. Both now say what happened.
+    var blankNudge by remember(lesson.id) { mutableStateOf(false) }
+    var submitFailed by remember(lesson.id) { mutableStateOf(false) }
     val shake = rememberShakeOffset(shakeTrigger, reduced)
     val completed = lesson.done || result?.correct == true
 
@@ -297,13 +303,25 @@ private fun CheckQuestion(vm: AcademyViewModel, lesson: LessonPayload, reduced: 
             ChoiceRow(
                 index = i, text = choice, selected = selected == i,
                 accent = accent, reduced = reduced,
-                enabled = result?.correct != true,
-                onClick = { selected = i; result = null },
+                // A completed lesson's rows lock (audit
+                // 2026-11-11): they used to stay tappable with
+                // the submit button already replaced by the tick
+                // — selection changed, nothing could be sent.
+                enabled = !completed,
+                onClick = { selected = i; result = null; blankNudge = false },
                 modifier = Modifier.padding(bottom = 8.dp),
             )
         }
         if (result?.correct == false) {
             ErrorLine(stringResource(R.string.lesson_incorrect))
+            Spacer(Modifier.height(8.dp))
+        }
+        if (blankNudge && selected == null) {
+            ErrorLine(stringResource(R.string.lesson_select_first))
+            Spacer(Modifier.height(8.dp))
+        }
+        if (submitFailed) {
+            ErrorLine(stringResource(R.string.error_network))
             Spacer(Modifier.height(8.dp))
         }
         if (completed) {
@@ -318,15 +336,27 @@ private fun CheckQuestion(vm: AcademyViewModel, lesson: LessonPayload, reduced: 
                 reduced = reduced,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .graphicsLayer { translationX = shake.x },
+                    // Reduced motion: shake.x carries the alpha
+                    // factor (Motion.kt's documented contract);
+                    // full motion: it carries pixel travel.
+                    .graphicsLayer {
+                        if (reduced) alpha = shake.x else translationX = shake.x
+                    },
                 onClick = {
                     val s = selected
                     if (s == null) {
+                        blankNudge = true
                         shakeTrigger++
                     } else {
                         vm.submitCheck(null, s) { r ->
-                            result = r
-                            if (r?.correct == false) shakeTrigger++
+                            if (r == null) {
+                                submitFailed = true
+                                shakeTrigger++
+                            } else {
+                                submitFailed = false
+                                result = r
+                                if (!r.correct) shakeTrigger++
+                            }
                         }
                     }
                 },
@@ -353,6 +383,10 @@ private fun PracticeQuestion(
 ) {
     var selected by remember(index, q) { mutableStateOf<Int?>(null) }
     var result by remember(index, q) { mutableStateOf<CheckResult?>(null) }
+    // A failed grading round trip used to be invisible here
+    // (audit 2026-11-11): the tap selected the row and nothing
+    // else happened. It now says so under the question.
+    var submitFailed by remember(index, q) { mutableStateOf(false) }
     Column {
         Text(q, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onBackground)
         Spacer(Modifier.height(8.dp))
@@ -368,10 +402,17 @@ private fun PracticeQuestion(
                 enabled = result?.correct != true,
                 onClick = {
                     selected = i
-                    vm.submitCheck(index, i) { r -> result = r }
+                    submitFailed = false
+                    vm.submitCheck(index, i) { r ->
+                        if (r == null) submitFailed = true else result = r
+                    }
                 },
                 modifier = Modifier.padding(bottom = 8.dp),
             )
+        }
+        if (submitFailed && result == null) {
+            ErrorLine(stringResource(R.string.error_network))
+            Spacer(Modifier.height(8.dp))
         }
         result?.explain?.let { explain ->
             Text(

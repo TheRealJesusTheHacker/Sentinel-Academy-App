@@ -1,11 +1,16 @@
 package net.sentinelsafeguard.academyapp
 
+import net.sentinelsafeguard.academyapp.data.catalogUseStored
 import net.sentinelsafeguard.academyapp.data.certCodeWellFormed
 import net.sentinelsafeguard.academyapp.data.courseEnterable
+import net.sentinelsafeguard.academyapp.data.durationParts
+import net.sentinelsafeguard.academyapp.data.etagMatchesBody
 import net.sentinelsafeguard.academyapp.data.examRemainingSeconds
+import net.sentinelsafeguard.academyapp.data.finalUnlocked
 import net.sentinelsafeguard.academyapp.data.formatClock
 import net.sentinelsafeguard.academyapp.data.normalizeCertCode
 import net.sentinelsafeguard.academyapp.data.sessionExpired
+import net.sentinelsafeguard.academyapp.data.sha256Hex
 import net.sentinelsafeguard.academyapp.data.signupPasswordProblem
 import net.sentinelsafeguard.academyapp.data.trackProgress
 import net.sentinelsafeguard.academyapp.data.weeklyGoalFraction
@@ -106,5 +111,85 @@ class AcademyLogicTest {
         assertEquals(0.5f, trackProgress(5, 10), 0.001f)
         assertEquals(1f, trackProgress(10, 10), 0.001f)
         assertEquals(0f, trackProgress(3, 0), 0.001f)
+    }
+
+    // Cooldown decomposition (audit 2026-11-11): the road used
+    // to render cooldowns through the m:ss exam clock — a 7-day
+    // invalidation cooldown read "10080:00". The parts must sum
+    // back to the input at every scale.
+    @Test
+    fun durationPartsDecompose() {
+        assertEquals(listOf(0, 0, 0, 0), durationParts(0))
+        assertEquals(listOf(0, 0, 0, 45), durationParts(45))
+        assertEquals(listOf(0, 0, 12, 0), durationParts(720))
+        assertEquals(listOf(0, 5, 12, 0), durationParts(5 * 3600 + 12 * 60))
+        assertEquals(listOf(1, 1, 1, 1), durationParts(86_400 + 3_600 + 60 + 1))
+        assertEquals(listOf(7, 0, 0, 0), durationParts(604_800)) // 7-day invalidation
+        assertEquals(listOf(0, 0, 0, 0), durationParts(-90)) // clamps at zero
+        for (s in listOf(0, 59, 60, 3_599, 3_600, 86_399, 86_400, 604_800, 900_610)) {
+            val p = durationParts(s)
+            assertEquals(s, p[0] * 86_400 + p[1] * 3_600 + p[2] * 60 + p[3])
+        }
+    }
+
+    // Final availability (audit 2026-11-11): presentation twin
+    // of the server's road gate — every CORE course "complete"
+    // unlocks; anything else (open, locked, missing overlay)
+    // keeps the CTA away from a guaranteed refusal.
+    @Test
+    fun finalUnlockedReadsCourseStates() {
+        assertTrue(finalUnlocked(listOf("complete")))
+        assertTrue(finalUnlocked(listOf("complete", "complete", "complete")))
+        assertFalse(finalUnlocked(listOf("complete", "open")))
+        assertFalse(finalUnlocked(listOf("locked")))
+        assertFalse(finalUnlocked(listOf("complete", null)))
+        assertFalse(finalUnlocked(listOf(null)))
+        assertFalse(finalUnlocked(emptyList()))
+    }
+
+    // Catalog validator cache (CATALOG-ETAG 2026-11-11): the
+    // ETag is the quoted SHA-256 hex of the exact body bytes —
+    // the same construction the server's _json validator uses,
+    // pinned here against the FIPS "abc" test vector.
+    @Test
+    fun sha256HexMatchesKnownVector() {
+        assertEquals(
+            "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+            sha256Hex("abc".toByteArray(Charsets.UTF_8)),
+        )
+        assertEquals(
+            "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            sha256Hex(ByteArray(0)),
+        )
+    }
+
+    @Test
+    fun etagMatchesBodyVerifiesTheExactBytes() {
+        val body = "{\"tracks\":[]}".toByteArray(Charsets.UTF_8)
+        val etag = "\"" + sha256Hex(body) + "\""
+        assertTrue(etagMatchesBody(etag, body))
+        assertTrue(etagMatchesBody(sha256Hex(body), body)) // unquoted tolerated
+        assertTrue(etagMatchesBody("W/" + etag, body)) // weak prefix tolerated
+        assertFalse(etagMatchesBody(etag, "{\"tracks\":[1]}".toByteArray(Charsets.UTF_8)))
+        assertFalse(etagMatchesBody("\"" + "0".repeat(64) + "\"", body))
+        assertFalse(etagMatchesBody(null, body))
+        assertFalse(etagMatchesBody("", body))
+        assertFalse(etagMatchesBody("not-a-hash", body))
+    }
+
+    // The stored-copy decision table: 304 (server-confirmed) and
+    // transport failure (offline) may use it; every real HTTP
+    // answer — success handled elsewhere, errors included — is
+    // presented as itself. No stored copy, no substitution.
+    @Test
+    fun catalogUseStoredDecisionTable() {
+        assertTrue(catalogUseStored(304, hasStored = true))
+        assertTrue(catalogUseStored(0, hasStored = true))
+        assertFalse(catalogUseStored(304, hasStored = false))
+        assertFalse(catalogUseStored(0, hasStored = false))
+        assertFalse(catalogUseStored(200, hasStored = true))
+        assertFalse(catalogUseStored(429, hasStored = true))
+        assertFalse(catalogUseStored(500, hasStored = true))
+        assertFalse(catalogUseStored(401, hasStored = true))
     }
 }

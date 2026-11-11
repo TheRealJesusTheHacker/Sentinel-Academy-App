@@ -13,8 +13,11 @@
     <!-- Common -->
     <string name="common_retry">Reintentar</string>
     <string name="common_back">Atrás</string>
-    <string name="common_close">Cerrar</string>
     <string name="common_minutes">%1$d min</string>
+    <string name="unit_day">d</string>
+    <string name="unit_hour">h</string>
+    <string name="unit_min">min</string>
+    <string name="unit_sec">s</string>
     <string name="error_network">No se pudo contactar a la Academy. Revisa tu conexión e inténtalo de nuevo.</string>
 
     <!-- Auth -->
@@ -33,6 +36,7 @@
     <string name="auth_error_password_short">Las contraseñas necesitan al menos 10 caracteres.</string>
     <string name="auth_error_password_long">Esa contraseña es demasiado larga — 200 caracteres como máximo.</string>
     <string name="auth_error_duplicate">Ya existe una cuenta con ese correo. Intenta iniciar sesión.</string>
+    <string name="signup_fill_fields">Escribe tu nombre, tu correo y una contraseña para crear tu cuenta.</string>
     <string name="auth_notice_expired">Tu sesión terminó — las sesiones duran 7 días. Inicia sesión de nuevo para continuar donde ibas; tu progreso está guardado en la Academy.</string>
     <string name="auth_notice_signed_out">Cerraste sesión en este dispositivo. Tus demás sesiones quedan intactas.</string>
     <string name="pending_title">Revisa tu correo</string>
@@ -61,12 +65,10 @@
     <string name="streak_this_week">%1$d de %2$d lecciones esta semana</string>
     <string name="streak_goal_guide">La meta semanal de %1$d lecciones es una guía, no un requisito.</string>
     <string name="home_my_tracks">MIS PISTAS</string>
-    <string name="home_no_tracks">Aún no estás inscrito en ninguna pista. Elige una abajo — la inscripción es instantánea.</string>
-    <string name="home_all_tracks">TODAS LAS PISTAS</string>
+    <string name="home_no_tracks">Aún no estás inscrito en ninguna pista. Elige una en la pestaña Pistas — la inscripción es instantánea.</string>
 
     <!-- Catalog / tracks -->
     <string name="track_free">Gratis</string>
-    <string name="track_enrolled">Inscrito</string>
     <string name="track_enroll">Inscribirme</string>
     <string name="track_lessons">%1$d lecciones</string>
     <string name="track_courses">%1$d cursos</string>
@@ -80,9 +82,13 @@
     <string name="road_quiz">Cuestionario del curso</string>
     <string name="road_quiz_passed">Aprobado · mejor %1$d%%</string>
     <string name="road_quiz_cta">Hacer el cuestionario</string>
+    <string name="road_quiz_locked_note">Termina las lecciones para desbloquear el cuestionario.</string>
     <string name="road_final">Evaluación final</string>
     <string name="road_final_passed">Final aprobado</string>
     <string name="road_final_cta">Empezar el final</string>
+    <string name="road_final_locked_note">Completa todos los cursos principales para desbloquear el final.</string>
+    <string name="road_final_best">Mejor nota: %1$d%%</string>
+    <string name="road_practice_best">Mejor práctica: %1$d%%</string>
     <string name="road_practice_cta">Practicar el final</string>
     <string name="road_locked">Bloqueado</string>
     <string name="road_done">Hecho</string>
@@ -127,7 +133,6 @@
     <string name="exam_issued_title">Certificado emitido</string>
     <string name="exam_open_certificate">Ver certificado</string>
     <string name="exam_done">Terminar</string>
-    <string name="exam_start_error">El examen no pudo empezar.</string>
 
     <!-- Certificates -->
     <string name="certs_title">MIS CERTIFICADOS</string>
@@ -142,8 +147,10 @@
     <string name="verify_found">Certificado verificado</string>
     <string name="verify_not_found">Ningún certificado coincide con ese código.</string>
     <string name="verify_name">Nombre: %1$s</string>
+    <string name="verify_certificate">Certificado: %1$s</string>
     <string name="verify_track">Pista: %1$s</string>
     <string name="verify_issued">Emitido: %1$s</string>
+    <string name="verify_error_rate">Demasiadas consultas ahora mismo — espera un poco e inténtalo de nuevo.</string>
 
     <!-- Settings -->
     <string name="settings_title">Ajustes</string>

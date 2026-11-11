@@ -29,10 +29,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import net.sentinelsafeguard.academyapp.R
+import kotlinx.coroutines.delay
 import net.sentinelsafeguard.academyapp.data.Course
 import net.sentinelsafeguard.academyapp.data.Track
 import net.sentinelsafeguard.academyapp.data.courseEnterable
-import net.sentinelsafeguard.academyapp.data.formatClock
+import net.sentinelsafeguard.academyapp.data.finalUnlocked
 import net.sentinelsafeguard.academyapp.data.trackProgress
 import net.sentinelsafeguard.academyapp.data.weeklyGoalFraction
 import net.sentinelsafeguard.academyapp.ui.theme.SentinelAmber
@@ -118,8 +119,17 @@ fun TrackCard(
                     .background(SentinelContainer)
                     .padding(horizontal = 8.dp, vertical = 4.dp),
             ) {
+                // The chip renders the payload's access value
+                // (audit 2026-11-11): "free" today on every
+                // track, localized; any future value displays
+                // as the server states it instead of a hardcoded
+                // promise the payload didn't make.
                 Text(
-                    text = stringResource(R.string.track_free),
+                    text = if (track.access == "free") {
+                        stringResource(R.string.track_free)
+                    } else {
+                        track.access.replaceFirstChar { it.uppercase() }
+                    },
                     style = MaterialTheme.typography.labelMedium,
                     color = SentinelMuted,
                 )
@@ -206,7 +216,22 @@ fun HomeScreen(
         val mine = vm.catalog?.tracks?.filter {
             it.enrolled == true || vm.me?.enrolled?.contains(it.slug) == true
         } ?: emptyList()
-        if (mine.isEmpty()) {
+        if (vm.catalog == null) {
+            // Loading vs failed are different truths (audit
+            // 2026-11-11): a failed catalog fetch must not render
+            // as "not enrolled in a track yet", and must offer a
+            // way back.
+            item {
+                if (vm.catalogFailed) {
+                    ErrorLine(stringResource(R.string.error_network))
+                    Spacer(Modifier.height(8.dp))
+                    GhostButton(stringResource(R.string.common_retry), onClick = { vm.refreshAll() }, reduced = reduced)
+                } else {
+                    LoadingBlock()
+                }
+                Spacer(Modifier.height(8.dp))
+            }
+        } else if (mine.isEmpty()) {
             item {
                 Text(
                     text = stringResource(R.string.home_no_tracks),
@@ -247,7 +272,15 @@ fun TracksScreen(
             Spacer(Modifier.height(12.dp))
         }
         if (tracks.isEmpty()) {
-            item { LoadingBlock() }
+            item {
+                if (vm.catalogFailed) {
+                    ErrorLine(stringResource(R.string.error_network))
+                    Spacer(Modifier.height(8.dp))
+                    GhostButton(stringResource(R.string.common_retry), onClick = { vm.refreshAll() }, reduced = reduced)
+                } else {
+                    LoadingBlock()
+                }
+            }
         }
     }
 }
@@ -270,7 +303,15 @@ fun TrackRoadScreen(
         contentPadding = androidx.compose.foundation.layout.PaddingValues(20.dp),
     ) {
         if (track == null) {
-            item { LoadingBlock() }
+            item {
+                if (vm.catalogFailed) {
+                    ErrorLine(stringResource(R.string.error_network))
+                    Spacer(Modifier.height(8.dp))
+                    GhostButton(stringResource(R.string.common_retry), onClick = { vm.refreshAll() }, reduced = reduced)
+                } else {
+                    LoadingBlock()
+                }
+            }
             return@LazyColumn
         }
         item {
@@ -408,6 +449,14 @@ private fun CourseRoadCard(
                         style = MaterialTheme.typography.bodySmall,
                         color = SentinelGreen,
                     )
+                } else if (!allLessonsDone) {
+                    // Say WHY there is no button (audit 2026-11-11):
+                    // a silently absent CTA reads as a dead control.
+                    Text(
+                        text = stringResource(R.string.road_quiz_locked_note),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = SentinelMuted,
+                    )
                 }
             }
             // The quiz step opens when the course's lessons are
@@ -443,15 +492,63 @@ private fun StateChip(state: String?) {
 }
 
 @Composable
+private fun PracticeFinalButton(
+    track: Track,
+    reduced: Boolean,
+    onStartFinal: (String, String) -> Unit,
+) {
+    if (track.slug == "expert" || track.slug == "expert-es") {
+        Spacer(Modifier.height(10.dp))
+        GhostButton(
+            text = stringResource(R.string.road_practice_cta),
+            reduced = reduced,
+            modifier = Modifier.fillMaxWidth(),
+            onClick = { onStartFinal(track.slug, "practice") },
+        )
+    }
+}
+
+@Composable
 private fun FinalRoadCard(
     vm: AcademyViewModel,
     track: Track,
     reduced: Boolean,
     onStartFinal: (String, String) -> Unit,
 ) {
-    val passed = vm.me?.tracks?.get(track.slug)?.finalPassed == true
-    var cooldown by remember(track.slug) { mutableStateOf(0) }
-    LaunchedEffect(vm.cooldownSeconds) { cooldown = vm.cooldownSeconds }
+    val progress = vm.me?.tracks?.get(track.slug)
+    val passed = progress?.finalPassed == true
+    val enrolled = track.enrolled == true || vm.me?.enrolled?.contains(track.slug) == true
+    val unlocked = finalUnlocked(track.courses.filter { !it.elective }.map { it.state })
+
+    // Cooldown (audit 2026-11-11): /api/status gives a snapshot;
+    // the card counts it down locally each second and re-asks
+    // the server when the snapshot runs out — the server's clock
+    // stays the authority, and long cooldowns read as durations
+    // ("7d 0h"), never as a raw m:ss clock ("10080:00").
+    var cooldownBase by remember(track.slug) { mutableStateOf(0) }
+    var cooldownAtMs by remember(track.slug) { mutableStateOf(0L) }
+    LaunchedEffect(vm.cooldownSeconds) {
+        cooldownBase = vm.cooldownSeconds
+        cooldownAtMs = System.currentTimeMillis()
+    }
+    var tick by remember(track.slug) { mutableStateOf(0) }
+    LaunchedEffect(cooldownBase, cooldownAtMs) {
+        if (cooldownBase > 0) {
+            while ((System.currentTimeMillis() - cooldownAtMs) < cooldownBase * 1000L) {
+                delay(1000)
+                tick++
+            }
+            vm.refreshCooldown(track.slug)
+        }
+    }
+    val cooldown = if (cooldownBase > 0) {
+        // Reading tick subscribes this card to the 1s countdown.
+        val elapsedSec = ((System.currentTimeMillis() - cooldownAtMs) / 1000).toInt()
+        if (tick >= 0) (cooldownBase - elapsedSec).coerceAtLeast(0) else 0
+    } else {
+        0
+    }
+
     SentinelCard(modifier = Modifier.fillMaxWidth(), container = SentinelContainer) {
         SectionLabel(stringResource(R.string.road_final))
         Spacer(Modifier.height(8.dp))
@@ -462,6 +559,26 @@ private fun FinalRoadCard(
                 color = SentinelMuted,
             )
             Spacer(Modifier.height(10.dp))
+        }
+        // Scores the payloads already carry (audit 2026-11-11,
+        // capability gap): /api/me reports the final best and
+        // the practice best per track; show them where the
+        // learner decides whether to retake.
+        progress?.finalPct?.let {
+            Text(
+                text = stringResource(R.string.road_final_best, it),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onBackground,
+            )
+            Spacer(Modifier.height(4.dp))
+        }
+        progress?.practicePct?.let {
+            Text(
+                text = stringResource(R.string.road_practice_best, it),
+                style = MaterialTheme.typography.bodyMedium,
+                color = SentinelMuted,
+            )
+            Spacer(Modifier.height(4.dp))
         }
         when {
             passed -> {
@@ -481,27 +598,50 @@ private fun FinalRoadCard(
                     color = SentinelMuted,
                 )
             }
-            cooldown > 0 -> Text(
-                text = stringResource(R.string.road_cooldown, formatClock(cooldown)),
-                style = MaterialTheme.typography.bodyMedium,
-                color = SentinelAmber,
-            )
-            else -> {
+            cooldown > 0 -> {
+                Text(
+                    text = stringResource(R.string.road_cooldown, durationText(cooldown)),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = SentinelAmber,
+                )
+                // The cooldown binds EXAM mode only — the
+                // server's own refusal message says lessons,
+                // quizzes and practice stay open, so the
+                // practice route stays on the card too.
+                if (enrolled) {
+                    PracticeFinalButton(track, reduced, onStartFinal)
+                }
+            }
+            !unlocked -> {
+                // No live CTA into a guaranteed refusal (audit
+                // 2026-11-11): the payload's own course states
+                // say the final is locked, so the card says so.
+                // Practice stays available on Expert — it is how
+                // you prepare — and the server re-checks anyway.
+                Text(
+                    text = stringResource(R.string.road_final_locked_note),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = SentinelMuted,
+                )
+                if (enrolled) {
+                    PracticeFinalButton(track, reduced, onStartFinal)
+                }
+            }
+            enrolled -> {
                 PrimaryButton(
                     text = stringResource(R.string.road_final_cta),
                     reduced = reduced,
                     modifier = Modifier.fillMaxWidth(),
                     onClick = { onStartFinal(track.slug, "exam") },
                 )
-                if (track.slug == "expert" || track.slug == "expert-es") {
-                    Spacer(Modifier.height(8.dp))
-                    GhostButton(
-                        text = stringResource(R.string.road_practice_cta),
-                        reduced = reduced,
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = { onStartFinal(track.slug, "practice") },
-                    )
-                }
+                PracticeFinalButton(track, reduced, onStartFinal)
+            }
+            else -> {
+                Text(
+                    text = stringResource(R.string.road_final_locked_note),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = SentinelMuted,
+                )
             }
         }
     }

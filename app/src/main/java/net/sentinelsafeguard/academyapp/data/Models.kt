@@ -207,7 +207,14 @@ data class Streaks(
 data class ExamStatus(val attempts: Int, val cooldownSeconds: Int)
 
 /** GET /api/app/verify — found carries the public record only;
- *  not-found and malformed are the identical shape server-side. */
+ *  not-found and malformed are the identical shape server-side.
+ *  [lookupError] (audit 2026-11-11) separates "no lookup
+ *  happened" from "lookup happened, nothing matched": the twin
+ *  answers 429 {"error": "rate limited — slow down"} when the
+ *  shared budget is spent, BEFORE any lookup, and a transport
+ *  failure likewise performs none. Presenting either as
+ *  "no certificate matches" would be a false statement, so the
+ *  UI renders them as their own states: "rate" | "net". */
 data class VerifyResult(
     val found: Boolean,
     val name: String? = null,
@@ -217,4 +224,5 @@ data class VerifyResult(
     val issued: String? = null,
     val status: String,
     val valid: Boolean,
+    val lookupError: String? = null,
 )

@@ -14,8 +14,11 @@
     <!-- Common -->
     <string name="common_retry">Try again</string>
     <string name="common_back">Back</string>
-    <string name="common_close">Close</string>
     <string name="common_minutes">%1$d min</string>
+    <string name="unit_day">d</string>
+    <string name="unit_hour">h</string>
+    <string name="unit_min">min</string>
+    <string name="unit_sec">s</string>
     <string name="error_network">Could not reach the Academy. Check your connection and try again.</string>
 
     <!-- Auth -->
@@ -34,6 +37,7 @@
     <string name="auth_error_password_short">Passwords need at least 10 characters.</string>
     <string name="auth_error_password_long">That password is too long — 200 characters at most.</string>
     <string name="auth_error_duplicate">An account with that email already exists. Try signing in instead.</string>
+    <string name="signup_fill_fields">Enter your name, email and a password to create your account.</string>
     <string name="auth_notice_expired">Your session ended — sessions last 7 days. Sign in again to pick up right where you left off; your progress is saved on the Academy.</string>
     <string name="auth_notice_signed_out">You are signed out on this device. Your other sessions are untouched.</string>
     <string name="pending_title">Check your email</string>
@@ -62,12 +66,10 @@
     <string name="streak_this_week">%1$d of %2$d lessons this week</string>
     <string name="streak_goal_guide">The weekly goal of %1$d lessons is a guide, not a requirement.</string>
     <string name="home_my_tracks">MY TRACKS</string>
-    <string name="home_no_tracks">You are not enrolled in a track yet. Pick one below — enrollment is instant.</string>
-    <string name="home_all_tracks">ALL TRACKS</string>
+    <string name="home_no_tracks">You are not enrolled in a track yet. Pick one on the Tracks tab — enrollment is instant.</string>
 
     <!-- Catalog / tracks -->
     <string name="track_free">Free</string>
-    <string name="track_enrolled">Enrolled</string>
     <string name="track_enroll">Enroll</string>
     <string name="track_lessons">%1$d lessons</string>
     <string name="track_courses">%1$d courses</string>
@@ -81,9 +83,13 @@
     <string name="road_quiz">Course quiz</string>
     <string name="road_quiz_passed">Passed · best %1$d%%</string>
     <string name="road_quiz_cta">Take the quiz</string>
+    <string name="road_quiz_locked_note">Finish the lessons to unlock the quiz.</string>
     <string name="road_final">Final assessment</string>
     <string name="road_final_passed">Final passed</string>
     <string name="road_final_cta">Start the final</string>
+    <string name="road_final_locked_note">Finish every core course to unlock the final.</string>
+    <string name="road_final_best">Best score: %1$d%%</string>
+    <string name="road_practice_best">Practice best: %1$d%%</string>
     <string name="road_practice_cta">Practice the final</string>
     <string name="road_locked">Locked</string>
     <string name="road_done">Done</string>
@@ -128,7 +134,6 @@
     <string name="exam_issued_title">Certificate issued</string>
     <string name="exam_open_certificate">View certificate</string>
     <string name="exam_done">Done</string>
-    <string name="exam_start_error">The paper could not be started.</string>
 
     <!-- Certificates -->
     <string name="certs_title">MY CERTIFICATES</string>
@@ -143,8 +148,10 @@
     <string name="verify_found">Certificate verified</string>
     <string name="verify_not_found">No certificate matches that code.</string>
     <string name="verify_name">Name: %1$s</string>
+    <string name="verify_certificate">Certificate: %1$s</string>
     <string name="verify_track">Track: %1$s</string>
     <string name="verify_issued">Issued: %1$s</string>
+    <string name="verify_error_rate">Too many lookups right now — wait a bit and try again.</string>
 
     <!-- Settings -->
     <string name="settings_title">Settings</string>

@@ -1,5 +1,6 @@
 package net.sentinelsafeguard.academyapp.data
 
+import java.security.MessageDigest
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -69,6 +70,73 @@ fun courseEnterable(state: String?): Boolean = state == "open" || state == "comp
  *  it computed), never from a client-side road re-derivation. */
 fun trackProgress(doneLessons: Int, totalLessons: Int): Float =
     if (totalLessons <= 0) 0f else (doneLessons.toFloat() / totalLessons).coerceIn(0f, 1f)
+
+/** Cooldown decomposition for display (audit 2026-11-11): a raw
+ *  m:ss clock misreads past an hour — a 7-day invalidation
+ *  cooldown rendered "10080:00". Returns (days, hours, minutes,
+ *  seconds); the UI composes the largest units with localized
+ *  unit labels. Negative input reads as zero. */
+fun durationParts(totalSeconds: Int): List<Int> {
+    val s = totalSeconds.coerceAtLeast(0)
+    return listOf(s / 86_400, (s % 86_400) / 3_600, (s % 3_600) / 60, s % 60)
+}
+
+/** Final availability from the road payload itself (audit
+ *  2026-11-11): the final unlocks when every core course's
+ *  server-computed state is "complete". The server stays the
+ *  authority — this only spares the learner a doomed paper
+ *  request and an unexplained locked CTA. An absent overlay
+ *  (null states) or an empty course list reads locked. */
+fun finalUnlocked(courseStates: List<String?>): Boolean =
+    courseStates.isNotEmpty() && courseStates.all { it == "complete" }
+
+// ---------------------------------------------------------------------------
+// Catalog validator cache (CATALOG-ETAG, server gift 2026-11-11).
+//
+// The ANONYMOUS catalog is a byte-uniform public payload, and the
+// server now serves it under a strong ETag — the quoted SHA-256
+// hex of the exact body bytes — with Cache-Control: private,
+// no-cache, answering a matching If-None-Match with a 304. The
+// AUTHENTICATED catalog carries the caller's overlay and stays
+// no-store with no validator by design: it is never cached, here
+// or anywhere. These pure rules pin the client half: when a
+// stored copy may stand in for a network body, and how a stored
+// copy proves it is the bytes its ETag names before it is used
+// or revalidated — a torn or tampered cache can never present
+// bytes the server did not confirm.
+// ---------------------------------------------------------------------------
+
+/** Lowercase hex SHA-256 of [bytes]. */
+fun sha256Hex(bytes: ByteArray): String =
+    MessageDigest.getInstance("SHA-256").digest(bytes)
+        .joinToString("") { "%02x".format(it) }
+
+/** True when [etag] names exactly [body]: the validator is the
+ *  quoted SHA-256 hex of the body bytes (a W/ prefix and
+ *  surrounding whitespace are tolerated, as the server's own
+ *  If-None-Match parsing tolerates them). Compared in constant
+ *  time; anything malformed is simply not a match. */
+fun etagMatchesBody(etag: String?, body: ByteArray): Boolean {
+    var v = etag?.trim() ?: return false
+    if (v.startsWith("W/")) v = v.substring(2).trim()
+    v = v.trim('"')
+    if (v.length != 64) return false
+    val expected = sha256Hex(body)
+    return MessageDigest.isEqual(
+        v.toByteArray(Charsets.US_ASCII),
+        expected.toByteArray(Charsets.US_ASCII),
+    )
+}
+
+/** When the stored catalog copy may be used instead of a fresh
+ *  network body: on a 304 (the server just confirmed those exact
+ *  bytes are current) and on a transport failure with no answer
+ *  at all (status 0 — the offline case, where the last
+ *  server-confirmed copy is the honest fallback). Any real HTTP
+ *  answer — including errors — is presented as itself, never
+ *  papered over with the cache. */
+fun catalogUseStored(status: Int, hasStored: Boolean): Boolean =
+    hasStored && (status == 304 || status == 0)
 
 // ---------------------------------------------------------------------------
 // Certificate-celebration confetti — the pure physics half.

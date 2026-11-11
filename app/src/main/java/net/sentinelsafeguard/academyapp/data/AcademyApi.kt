@@ -31,6 +31,12 @@ import java.net.URLEncoder
 //   explain field — even a hypothetical server regression could
 //   not put a key in the app's hands through this client, because
 //   there is nowhere here for one to land.
+// - The ANONYMOUS catalog is revalidated, not re-downloaded
+//   (CATALOG-ETAG 2026-11-11): it is stored with its strong ETag
+//   (SHA-256 of the body) in CatalogCache, refreshed with
+//   If-None-Match, and a 304 keeps the stored copy. The
+//   authenticated (overlay) catalog is no-store by server design
+//   and is never cached.
 // ---------------------------------------------------------------------------
 
 sealed class ApiResult<out T> {
@@ -47,15 +53,24 @@ sealed class ApiResult<out T> {
 
 class AcademyApi(
     private val store: SecureStore,
+    private val catalogCache: CatalogCache? = null,
     private val baseUrl: String = BASE_URL,
 ) {
-    private data class Raw(val status: Int, val json: JSONObject?)
+    private data class Raw(
+        val status: Int,
+        val json: JSONObject?,
+        /** Response ETag header, when the server sent one. */
+        val etag: String? = null,
+        /** The decoded response body, exactly as received. */
+        val text: String = "",
+    )
 
     private fun request(
         method: String,
         path: String,
         body: JSONObject? = null,
         auth: Boolean = true,
+        extraHeaders: Map<String, String> = emptyMap(),
     ): Raw {
         val conn = URL(baseUrl + path).openConnection() as HttpURLConnection
         try {
@@ -63,6 +78,13 @@ class AcademyApi(
             conn.connectTimeout = 15_000
             conn.readTimeout = 30_000
             conn.setRequestProperty("Accept", "application/json")
+            // gzip when the edge offers it (audit 2026-11-11):
+            // the catalog payload is ~243 KB of JSON on every
+            // refresh; negotiated compression cuts it to a
+            // fraction on the wire. Identity responses are
+            // untouched — the stream is wrapped only when the
+            // response actually declares gzip.
+            conn.setRequestProperty("Accept-Encoding", "gzip")
             // An honest, stable client identity (the app names
             // itself; server logs and edge rules can tell the app
             // from a browser at a glance).
@@ -72,6 +94,9 @@ class AcademyApi(
             )
             // §7 device identity — on every call, no exceptions.
             conn.setRequestProperty("Cookie", "sa-bid=" + store.deviceId())
+            for ((name, value) in extraHeaders) {
+                conn.setRequestProperty(name, value)
+            }
             if (auth) {
                 store.sessionToken()?.let {
                     conn.setRequestProperty("Authorization", "Bearer $it")
@@ -83,10 +108,17 @@ class AcademyApi(
                 conn.outputStream.use { it.write(body.toString().toByteArray(Charsets.UTF_8)) }
             }
             val status = conn.responseCode
-            val stream = if (status in 200..299) conn.inputStream else conn.errorStream
+            val rawStream = if (status in 200..299) conn.inputStream else conn.errorStream
+            val stream = if (rawStream != null &&
+                conn.contentEncoding?.contains("gzip", ignoreCase = true) == true
+            ) {
+                java.util.zip.GZIPInputStream(rawStream)
+            } else {
+                rawStream
+            }
             val text = stream?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }.orEmpty()
             val json = runCatching { JSONObject(text) }.getOrNull()
-            return Raw(status, json)
+            return Raw(status, json, etag = conn.getHeaderField("ETag"), text = text)
         } finally {
             conn.disconnect()
         }
@@ -171,10 +203,73 @@ class AcademyApi(
 
     suspend fun me(): ApiResult<Me> = call("GET", "/api/me") { parseMe(it) }
 
-    /** Anonymous-capable: with a stored token the session overlay
-     *  rides along; without one the public catalog answers. */
-    suspend fun catalog(): ApiResult<Catalog> =
-        call("GET", "/api/app/catalog", auth = store.sessionToken() != null) { parseCatalog(it) }
+    /** The catalog, in its two server shapes (CATALOG-ETAG
+     *  2026-11-11):
+     *  - With a stored token, the session overlay rides along
+     *    (enrolled / state / done). That response is per-user,
+     *    no-store, and carries no validator — it is fetched fresh
+     *    every time and never cached, exactly as before.
+     *  - Without one, the public catalog answers under a strong
+     *    ETag: the stored copy is revalidated with If-None-Match,
+     *    a 304 keeps it (saving the ~244 KB body per unchanged
+     *    launch), and a transport failure falls back to it (the
+     *    offline case). A 200 replaces the stored copy under its
+     *    new ETag. */
+    suspend fun catalog(): ApiResult<Catalog> {
+        if (store.sessionToken() != null) {
+            return call("GET", "/api/app/catalog", auth = true) { parseCatalog(it) }
+        }
+        return anonymousCatalog()
+    }
+
+    /** One anonymous catalog GET with the transport's standing
+     *  rule (a dropped GET is retried once; never more). A null
+     *  return means the transport failed outright — status 0 in
+     *  this client's vocabulary. */
+    private fun getRaw(path: String, extraHeaders: Map<String, String>): Raw? =
+        try {
+            request("GET", path, null, auth = false, extraHeaders = extraHeaders)
+        } catch (e: Exception) {
+            try {
+                request("GET", path, null, auth = false, extraHeaders = extraHeaders)
+            } catch (e2: Exception) {
+                null
+            }
+        }
+
+    private suspend fun anonymousCatalog(): ApiResult<Catalog> = withContext(Dispatchers.IO) {
+        val stored = catalogCache?.load()
+        val headers = stored?.let { mapOf("If-None-Match" to it.etag) } ?: emptyMap()
+        val raw = getRaw("/api/app/catalog", headers)
+        val status = raw?.status ?: 0
+        if (catalogUseStored(status, stored != null)) {
+            // 304: the server confirms the stored bytes are
+            // current. Status 0: no answer at all — the last
+            // server-confirmed copy is the honest offline answer.
+            val parsed = runCatching { parseCatalog(JSONObject(stored!!.body)) }.getOrNull()
+            if (parsed != null) return@withContext ApiResult.Ok(parsed, status)
+            // An integrity-verified copy that no longer parses
+            // is not served; fall through and report the fetch.
+        }
+        if (raw != null && raw.status in 200..299 && raw.json != null) {
+            // Cache only what the server validated: a 200 with
+            // an ETag is stored under it; an unvalidated body is
+            // used for this answer and not kept.
+            val etag = raw.etag
+            if (etag != null && catalogCache != null) {
+                runCatching { catalogCache.store(etag, raw.text) }
+            }
+            return@withContext runCatching { ApiResult.Ok(parseCatalog(raw.json), raw.status) }
+                .getOrElse { ApiResult.Err(raw.status, null, body = raw.json) }
+        }
+        ApiResult.Err(
+            status = status,
+            serverMessage = raw?.json?.optString("message")?.takeIf { it.isNotBlank() }
+                ?: raw?.json?.optString("error")?.takeIf { it.isNotBlank() },
+            reason = raw?.json?.optString("reason")?.takeIf { it.isNotBlank() },
+            body = raw?.json,
+        )
+    }
 
     suspend fun lesson(track: String, course: String, lesson: String): ApiResult<LessonPayload> {
         val q = "track=${enc(track)}&course=${enc(course)}&lesson=${enc(lesson)}"
