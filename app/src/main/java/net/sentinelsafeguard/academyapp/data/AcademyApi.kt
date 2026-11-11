@@ -191,6 +191,61 @@ class AcademyApi(
     suspend fun promo(code: String): ApiResult<JSONObject> =
         call("POST", "/api/app/promo", JSONObject().put("promo", code)) { it }
 
+    // ---------------- Account settings (G4 twins,
+    // SETTINGS-TWINS 2026-11-11) ----------------
+    //
+    // Every mutation answers 200 {"ok": true, "settings": {...}}
+    // with the caller's FRESH settings — the parse below reads
+    // that object, so the UI renders the server's confirmed state,
+    // never the values it sent. Refusals are 400s carrying the web
+    // flow's exact message in "error" plus a machine "reason";
+    // `call` already surfaces both (serverMessage / reason), and
+    // the ViewModel shows the server's words verbatim.
+    // The password twin is the one mutation with NO settings
+    // payload: 200 {"ok": true}, and on success every OTHER
+    // session on the account is revoked server-side while the
+    // presented token survives — this client's stored token is
+    // therefore deliberately left untouched by a password change.
+
+    suspend fun updateProfile(displayName: String, certName: String): ApiResult<AccountSettings> {
+        val p = profilePayload(displayName, certName)
+        return call("POST", "/api/app/profile", JSONObject().apply {
+            for ((k, v) in p) put(k, v)
+        }) { parseSettings(it) }
+    }
+
+    suspend fun updateSocial(registry: Boolean, leaderboard: Boolean): ApiResult<AccountSettings> {
+        val p = socialPayload(registry, leaderboard)
+        return call("POST", "/api/app/social", JSONObject().apply {
+            for ((k, v) in p) put(k, v)
+        }) { parseSettings(it) }
+    }
+
+    suspend fun updateNotifications(certAnniversary: Boolean): ApiResult<AccountSettings> {
+        val p = notificationsPayload(certAnniversary)
+        return call("POST", "/api/app/notifications", JSONObject().apply {
+            for ((k, v) in p) put(k, v)
+        }) { parseSettings(it) }
+    }
+
+    suspend fun changePassword(current: String, new: String): ApiResult<Boolean> =
+        call("POST", "/api/app/password", JSONObject().apply {
+            put("current", current); put("new", new)
+        }) { it.optBoolean("ok", false) }
+
+    private fun parseSettings(json: JSONObject): AccountSettings {
+        val s = json.getJSONObject("settings")
+        return accountSettingsFromMap(
+            mapOf(
+                "display_name" to s.optString("display_name"),
+                "cert_name" to s.optString("cert_name"),
+                "registry" to s.optBoolean("registry", false),
+                "leaderboard" to s.optBoolean("leaderboard", false),
+                "notify_cert_anniversary" to s.optBoolean("notify_cert_anniversary", false),
+            ),
+        )
+    }
+
     data class SessionPayload(val token: String?, val expiresAt: Long, val pendingConfirmation: Boolean)
 
     private fun parseSession(json: JSONObject): SessionPayload = SessionPayload(
@@ -387,6 +442,7 @@ class AcademyApi(
                 promo = u.optBoolean("promo", false),
                 registry = u.optBoolean("registry", false),
                 leaderboard = u.optBoolean("leaderboard", false),
+                notifyCertAnniversary = u.optBoolean("notify_cert_anniversary", false),
             ),
             enrolled = json.optJSONArray("enrolled").toStringList(),
             imported = json.optBoolean("imported", false),

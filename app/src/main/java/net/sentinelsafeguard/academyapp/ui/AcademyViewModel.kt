@@ -8,6 +8,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import net.sentinelsafeguard.academyapp.data.AcademyApi
+import net.sentinelsafeguard.academyapp.data.AccountSettings
 import net.sentinelsafeguard.academyapp.data.ApiResult
 import net.sentinelsafeguard.academyapp.data.Catalog
 import net.sentinelsafeguard.academyapp.data.CatalogCache
@@ -21,6 +22,7 @@ import net.sentinelsafeguard.academyapp.data.SecureStore
 import net.sentinelsafeguard.academyapp.data.Streaks
 import net.sentinelsafeguard.academyapp.data.VerifyResult
 import net.sentinelsafeguard.academyapp.data.sessionExpired
+import net.sentinelsafeguard.academyapp.data.withSettings
 
 // ---------------------------------------------------------------------------
 // AcademyViewModel — the app's state and every server round trip.
@@ -301,6 +303,69 @@ class AcademyViewModel(app: Application) : AndroidViewModel(app) {
                     onResult(false, r.serverMessage)
                 }
             }
+        }
+    }
+
+    // ---------------- Account settings (G4 twins) ----------------
+
+    var settingsBusy by mutableStateOf(false)
+        private set
+
+    /** A confirmed mutation carries the caller's FRESH settings;
+     *  fold them into `me` so every surface renders the server's
+     *  read-back (a stripped name shows stripped), not the values
+     *  the app sent. */
+    private fun applySettings(s: AccountSettings) {
+        val m = me ?: return
+        me = m.copy(user = m.user.withSettings(s))
+    }
+
+    private fun settingsCall(
+        block: suspend () -> ApiResult<AccountSettings>,
+        onResult: (Boolean, String?) -> Unit,
+    ) {
+        viewModelScope.launch {
+            settingsBusy = true
+            when (val r = block()) {
+                is ApiResult.Ok -> { applySettings(r.value); onResult(true, null) }
+                is ApiResult.Err -> {
+                    if (r.status == 401) return@launch expireSession()
+                    // The server's own words, verbatim — including
+                    // a transport failure's null, which the UI
+                    // maps to the network sentence; never silence.
+                    onResult(false, r.serverMessage ?: NETWORK_ERROR)
+                }
+            }
+            settingsBusy = false
+        }
+    }
+
+    fun saveProfile(displayName: String, certName: String, onResult: (Boolean, String?) -> Unit) =
+        settingsCall({ api.updateProfile(displayName, certName) }, onResult)
+
+    fun saveSocial(registry: Boolean, leaderboard: Boolean, onResult: (Boolean, String?) -> Unit) =
+        settingsCall({ api.updateSocial(registry, leaderboard) }, onResult)
+
+    fun saveNotifications(certAnniversary: Boolean, onResult: (Boolean, String?) -> Unit) =
+        settingsCall({ api.updateNotifications(certAnniversary) }, onResult)
+
+    /** Password change (SETTINGS-TWINS §4): refusals carry the web
+     *  flow's exact messages — surfaced verbatim through
+     *  [onResult]'s message. On success the server has signed out
+     *  every OTHER session; this device's token survives by
+     *  design, so nothing local changes — the UI's success copy
+     *  states that plainly. */
+    fun changePassword(current: String, new: String, onResult: (Boolean, String?) -> Unit) {
+        viewModelScope.launch {
+            settingsBusy = true
+            when (val r = api.changePassword(current, new)) {
+                is ApiResult.Ok -> onResult(true, null)
+                is ApiResult.Err -> {
+                    if (r.status == 401) return@launch expireSession()
+                    onResult(false, r.serverMessage ?: NETWORK_ERROR)
+                }
+            }
+            settingsBusy = false
         }
     }
 

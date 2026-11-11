@@ -71,8 +71,8 @@ android {
         // identically to never-issued. access:"free" is display
         // data only — NO commerce surface exists in this build;
         // the paywall is a later phase by the owner's sequencing.
-        versionCode = 3
-        versionName = "1.1.1"
+        versionCode = 4
+        versionName = "1.1.2"
     }
 
     signingConfigs {

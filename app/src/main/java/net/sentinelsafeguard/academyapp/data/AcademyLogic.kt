@@ -91,6 +91,88 @@ fun finalUnlocked(courseStates: List<String?>): Boolean =
     courseStates.isNotEmpty() && courseStates.all { it == "complete" }
 
 // ---------------------------------------------------------------------------
+// Account settings (G4 twins, SETTINGS-TWINS 2026-11-11).
+//
+// The pure half of the four settings writes: payload construction
+// and read-back mapping, pinned by unit tests so the wire rules
+// are proven without a device. The rules that matter are the
+// server's checkbox semantics, mirrored honestly:
+// - /api/app/social treats an ABSENT switch as OFF and one save
+//   writes both. The client never leans on absence: every social
+//   save states BOTH current values explicitly, so what the user
+//   sees on the two switches is exactly what the save writes.
+// - /api/app/notifications likewise records one explicit boolean.
+// - /api/app/profile strips and caps names at 60 characters; the
+//   client caps input at the same 60 so the field the user edits
+//   is the field that can be saved — never silently truncated by
+//   the server into a different name than the one on screen.
+// ---------------------------------------------------------------------------
+
+/** The server's profile name cap, mirrored at input time. */
+const val SETTINGS_NAME_MAX: Int = 60
+
+fun capSettingsName(raw: String): String = raw.take(SETTINGS_NAME_MAX)
+
+/** Profile payload: both names, stripped — the exact body the
+ *  twin grades. */
+fun profilePayload(displayName: String, certName: String): Map<String, String> = mapOf(
+    "display_name" to displayName.trim(),
+    "cert_name" to certName.trim(),
+)
+
+/** Client pre-flight twin of the server's names_required refusal:
+ *  after stripping, an empty name can never save. Returns the
+ *  server's reason key, or null when the pair may go. */
+fun profileInputProblem(displayName: String, certName: String): String? =
+    if (displayName.isBlank() || certName.isBlank()) "names_required" else null
+
+/** Social payload: BOTH switches, always — one save writes both,
+ *  and the body says so outright (see the section header). */
+fun socialPayload(registry: Boolean, leaderboard: Boolean): Map<String, Boolean> = mapOf(
+    "registry" to registry,
+    "leaderboard" to leaderboard,
+)
+
+/** Notifications payload: the one switch, stated explicitly. */
+fun notificationsPayload(certAnniversary: Boolean): Map<String, Boolean> = mapOf(
+    "cert_anniversary" to certAnniversary,
+)
+
+/** A settings read-back (a mutation response's `settings` object,
+ *  or /api/me's user object flattened the same way) -> the model.
+ *  Missing booleans read as OFF and missing names as empty — the
+ *  same defaults the server's own shapes imply — so a partial
+ *  payload degrades to a truthful "off", never a phantom "on". */
+fun accountSettingsFromMap(m: Map<String, Any?>): AccountSettings = AccountSettings(
+    displayName = m["display_name"] as? String ?: "",
+    certName = m["cert_name"] as? String ?: "",
+    registry = m["registry"] as? Boolean ?: false,
+    leaderboard = m["leaderboard"] as? Boolean ?: false,
+    notifyCertAnniversary = m["notify_cert_anniversary"] as? Boolean ?: false,
+)
+
+/** The /api/me user -> settings (the cold-render path). */
+fun settingsOf(user: UserInfo): AccountSettings = AccountSettings(
+    displayName = user.displayName,
+    certName = user.certName,
+    registry = user.registry,
+    leaderboard = user.leaderboard,
+    notifyCertAnniversary = user.notifyCertAnniversary,
+)
+
+/** Fold a server-confirmed settings set back into the user: after
+ *  a save, the app shows the server's fresh values, not its own
+ *  request — if the server stripped a name, the stripped name is
+ *  what the screen shows. */
+fun UserInfo.withSettings(s: AccountSettings): UserInfo = copy(
+    displayName = s.displayName,
+    certName = s.certName,
+    registry = s.registry,
+    leaderboard = s.leaderboard,
+    notifyCertAnniversary = s.notifyCertAnniversary,
+)
+
+// ---------------------------------------------------------------------------
 // Catalog validator cache (CATALOG-ETAG, server gift 2026-11-11).
 //
 // The ANONYMOUS catalog is a byte-uniform public payload, and the

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -18,6 +19,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,8 +39,14 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import net.sentinelsafeguard.academyapp.R
 import net.sentinelsafeguard.academyapp.data.certCodeWellFormed
+import net.sentinelsafeguard.academyapp.data.capSettingsName
+import net.sentinelsafeguard.academyapp.data.profileInputProblem
+import net.sentinelsafeguard.academyapp.data.signupPasswordProblem
+import net.sentinelsafeguard.academyapp.ui.theme.SentinelContainer
+import net.sentinelsafeguard.academyapp.ui.theme.SentinelContainerHigh
 import net.sentinelsafeguard.academyapp.ui.theme.SentinelGreen
 import net.sentinelsafeguard.academyapp.ui.theme.SentinelMuted
+import net.sentinelsafeguard.academyapp.ui.theme.SentinelOnGreen
 
 // ---------------------------------------------------------------------------
 // Certificates + verify, and Settings.
@@ -232,6 +241,33 @@ fun SettingsScreen(vm: AcademyViewModel, reduced: Boolean) {
     val pinShort = stringResource(R.string.settings_pin_short)
     val pinSaved = stringResource(R.string.settings_pin_saved)
 
+    // Account settings (G4 twins): the editable state seeds from
+    // the server's /api/me values, keyed on them — a confirmed
+    // save updates `me`, which re-seeds the fields with the
+    // server's fresh read-back; edits in progress are untouched
+    // by refreshes that change nothing.
+    val user = vm.me?.user
+    val netError = stringResource(R.string.error_network)
+    val namesRequired = stringResource(R.string.settings_names_required)
+    var displayName by remember(user?.displayName) { mutableStateOf(user?.displayName ?: "") }
+    var certName by remember(user?.certName) { mutableStateOf(user?.certName ?: "") }
+    var profileNote by remember { mutableStateOf<String?>(null) }
+    var profileSaved by remember { mutableStateOf(false) }
+    var registry by remember(user?.registry) { mutableStateOf(user?.registry ?: false) }
+    var leaderboard by remember(user?.leaderboard) { mutableStateOf(user?.leaderboard ?: false) }
+    var socialNote by remember { mutableStateOf<String?>(null) }
+    var socialSaved by remember { mutableStateOf(false) }
+    var anniversary by remember(user?.notifyCertAnniversary) { mutableStateOf(user?.notifyCertAnniversary ?: false) }
+    var notifyNote by remember { mutableStateOf<String?>(null) }
+    var notifySaved by remember { mutableStateOf(false) }
+    var currentPw by remember { mutableStateOf("") }
+    var newPw by remember { mutableStateOf("") }
+    var pwNote by remember { mutableStateOf<String?>(null) }
+    var pwChanged by remember { mutableStateOf(false) }
+    val pwShort = stringResource(R.string.auth_error_password_short)
+    val pwLong = stringResource(R.string.auth_error_password_long)
+    val pwFill = stringResource(R.string.settings_password_fill)
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -246,13 +282,131 @@ fun SettingsScreen(vm: AcademyViewModel, reduced: Boolean) {
         )
         Spacer(Modifier.height(18.dp))
         SectionLabel(stringResource(R.string.settings_account))
+        Spacer(Modifier.height(8.dp))
+        Text(stringResource(R.string.settings_profile_body), style = MaterialTheme.typography.bodyMedium, color = SentinelMuted)
         Spacer(Modifier.height(10.dp))
         SentinelCard(modifier = Modifier.fillMaxWidth()) {
+            OutlinedTextField(
+                value = displayName,
+                onValueChange = { displayName = capSettingsName(it); profileSaved = false; profileNote = null },
+                label = { Text(stringResource(R.string.settings_name)) },
+                singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = SentinelGreen, focusedLabelColor = SentinelGreen,
+                ),
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Spacer(Modifier.height(10.dp))
+            OutlinedTextField(
+                value = certName,
+                onValueChange = { certName = capSettingsName(it); profileSaved = false; profileNote = null },
+                label = { Text(stringResource(R.string.settings_cert_name)) },
+                singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = SentinelGreen, focusedLabelColor = SentinelGreen,
+                ),
+                modifier = Modifier.fillMaxWidth(),
+            )
             vm.me?.user?.let { u ->
-                SettingsRow(stringResource(R.string.settings_name), u.displayName)
-                SettingsRow(stringResource(R.string.settings_cert_name), u.certName)
+                Spacer(Modifier.height(10.dp))
                 SettingsRow(stringResource(R.string.settings_email), u.email)
             }
+        }
+        Spacer(Modifier.height(10.dp))
+        PrimaryButton(
+            text = stringResource(R.string.settings_save),
+            busy = vm.settingsBusy,
+            enabled = user != null &&
+                (displayName.trim() != user.displayName || certName.trim() != user.certName),
+            reduced = reduced,
+            modifier = Modifier.fillMaxWidth(),
+            onClick = {
+                if (profileInputProblem(displayName, certName) != null) {
+                    profileNote = namesRequired
+                    profileSaved = false
+                } else {
+                    vm.saveProfile(displayName, certName) { ok, msg ->
+                        profileSaved = ok
+                        profileNote = if (ok) null else msg
+                    }
+                }
+            },
+        )
+        when {
+            profileSaved -> { Spacer(Modifier.height(8.dp)); Text(stringResource(R.string.settings_saved), style = MaterialTheme.typography.bodyMedium, color = SentinelGreen) }
+            profileNote != null -> { Spacer(Modifier.height(8.dp)); ErrorLine(profileNote?.let { if (it == AcademyViewModel.NETWORK_ERROR) netError else it } ?: "") }
+        }
+        Spacer(Modifier.height(20.dp))
+        SectionLabel(stringResource(R.string.settings_social_title))
+        Spacer(Modifier.height(10.dp))
+        SentinelCard(modifier = Modifier.fillMaxWidth()) {
+            SettingsSwitchRow(
+                title = stringResource(R.string.settings_registry),
+                body = stringResource(R.string.settings_registry_body),
+                checked = registry,
+                enabled = user != null && !vm.settingsBusy,
+                onCheckedChange = { registry = it; socialSaved = false; socialNote = null },
+            )
+            SettingsSwitchRow(
+                title = stringResource(R.string.settings_leaderboard),
+                body = stringResource(R.string.settings_leaderboard_body),
+                checked = leaderboard,
+                enabled = user != null && !vm.settingsBusy,
+                onCheckedChange = { leaderboard = it; socialSaved = false; socialNote = null },
+            )
+        }
+        Spacer(Modifier.height(8.dp))
+        Text(stringResource(R.string.settings_social_note), style = MaterialTheme.typography.bodySmall, color = SentinelMuted)
+        Spacer(Modifier.height(10.dp))
+        PrimaryButton(
+            text = stringResource(R.string.settings_save),
+            busy = vm.settingsBusy,
+            enabled = user != null && (registry != user.registry || leaderboard != user.leaderboard),
+            reduced = reduced,
+            modifier = Modifier.fillMaxWidth(),
+            onClick = {
+                // ONE save writes BOTH switches — the twin's
+                // checkbox rule (an absent switch would read as
+                // OFF), and the client states both values outright.
+                vm.saveSocial(registry, leaderboard) { ok, msg ->
+                    socialSaved = ok
+                    socialNote = if (ok) null else msg
+                }
+            },
+        )
+        when {
+            socialSaved -> { Spacer(Modifier.height(8.dp)); Text(stringResource(R.string.settings_saved), style = MaterialTheme.typography.bodyMedium, color = SentinelGreen) }
+            socialNote != null -> { Spacer(Modifier.height(8.dp)); ErrorLine(socialNote?.let { if (it == AcademyViewModel.NETWORK_ERROR) netError else it } ?: "") }
+        }
+        Spacer(Modifier.height(20.dp))
+        SectionLabel(stringResource(R.string.settings_notifications_title))
+        Spacer(Modifier.height(10.dp))
+        SentinelCard(modifier = Modifier.fillMaxWidth()) {
+            SettingsSwitchRow(
+                title = stringResource(R.string.settings_cert_anniversary),
+                body = stringResource(R.string.settings_cert_anniversary_body),
+                checked = anniversary,
+                enabled = user != null && !vm.settingsBusy,
+                onCheckedChange = { anniversary = it; notifySaved = false; notifyNote = null },
+            )
+        }
+        Spacer(Modifier.height(10.dp))
+        PrimaryButton(
+            text = stringResource(R.string.settings_save),
+            busy = vm.settingsBusy,
+            enabled = user != null && anniversary != user.notifyCertAnniversary,
+            reduced = reduced,
+            modifier = Modifier.fillMaxWidth(),
+            onClick = {
+                vm.saveNotifications(anniversary) { ok, msg ->
+                    notifySaved = ok
+                    notifyNote = if (ok) null else msg
+                }
+            },
+        )
+        when {
+            notifySaved -> { Spacer(Modifier.height(8.dp)); Text(stringResource(R.string.settings_saved), style = MaterialTheme.typography.bodyMedium, color = SentinelGreen) }
+            notifyNote != null -> { Spacer(Modifier.height(8.dp)); ErrorLine(notifyNote?.let { if (it == AcademyViewModel.NETWORK_ERROR) netError else it } ?: "") }
         }
         Spacer(Modifier.height(20.dp))
         SectionLabel(stringResource(R.string.settings_promo_title))
@@ -382,6 +536,67 @@ fun SettingsScreen(vm: AcademyViewModel, reduced: Boolean) {
             )
         }
         Spacer(Modifier.height(24.dp))
+        SectionLabel(stringResource(R.string.settings_password_title))
+        Spacer(Modifier.height(8.dp))
+        Text(stringResource(R.string.settings_password_body), style = MaterialTheme.typography.bodyMedium, color = SentinelMuted)
+        Spacer(Modifier.height(10.dp))
+        OutlinedTextField(
+            value = currentPw,
+            onValueChange = { currentPw = it; pwChanged = false; pwNote = null },
+            label = { Text(stringResource(R.string.settings_password_current)) },
+            singleLine = true,
+            visualTransformation = PasswordVisualTransformation(),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = SentinelGreen, focusedLabelColor = SentinelGreen,
+            ),
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Spacer(Modifier.height(10.dp))
+        OutlinedTextField(
+            value = newPw,
+            onValueChange = { newPw = it; pwChanged = false; pwNote = null },
+            label = { Text(stringResource(R.string.settings_password_new)) },
+            singleLine = true,
+            visualTransformation = PasswordVisualTransformation(),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = SentinelGreen, focusedLabelColor = SentinelGreen,
+            ),
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Spacer(Modifier.height(10.dp))
+        PrimaryButton(
+            text = stringResource(R.string.settings_password_change),
+            busy = vm.settingsBusy,
+            reduced = reduced,
+            modifier = Modifier.fillMaxWidth(),
+            onClick = {
+                // Client pre-flight mirrors the server's own
+                // rules (blank fields, then the 10..200 policy);
+                // every other refusal is the server's to state,
+                // and its words show verbatim below.
+                pwNote = when {
+                    currentPw.isEmpty() || newPw.isEmpty() -> pwFill
+                    signupPasswordProblem(newPw) == "short" -> pwShort
+                    signupPasswordProblem(newPw) == "long" -> pwLong
+                    else -> null
+                }
+                if (pwNote == null) {
+                    vm.changePassword(currentPw, newPw) { ok, msg ->
+                        if (ok) {
+                            pwChanged = true
+                            currentPw = ""; newPw = ""
+                        } else {
+                            pwNote = msg
+                        }
+                    }
+                }
+            },
+        )
+        when {
+            pwChanged -> { Spacer(Modifier.height(8.dp)); Text(stringResource(R.string.settings_password_changed), style = MaterialTheme.typography.bodyMedium, color = SentinelGreen) }
+            pwNote != null -> { Spacer(Modifier.height(8.dp)); ErrorLine(pwNote?.let { if (it == AcademyViewModel.NETWORK_ERROR) netError else it } ?: "") }
+        }
+        Spacer(Modifier.height(24.dp))
         Text(stringResource(R.string.settings_signout_body), style = MaterialTheme.typography.bodyMedium, color = SentinelMuted)
         Spacer(Modifier.height(10.dp))
         GhostButton(
@@ -412,6 +627,43 @@ fun SettingsScreen(vm: AcademyViewModel, reduced: Boolean) {
             Text(stringResource(R.string.settings_language_note), style = MaterialTheme.typography.bodySmall, color = SentinelMuted)
         }
         Spacer(Modifier.height(24.dp))
+    }
+}
+
+/** One settings switch: label + honest description on the left,
+ *  the switch on the right, the whole row at least 56dp tall
+ *  (the family's 48dp touch floor, with margin). Emerald Depth
+ *  tokens only — the switch checks in emerald, rests in tonal
+ *  container; it never borrows Material's default purple. */
+@Composable
+private fun SettingsSwitchRow(
+    title: String,
+    body: String,
+    checked: Boolean,
+    enabled: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.weight(1f).padding(end = 12.dp)) {
+            Text(title, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onBackground)
+            Text(body, style = MaterialTheme.typography.bodySmall, color = SentinelMuted)
+        }
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            enabled = enabled,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = SentinelOnGreen,
+                checkedTrackColor = SentinelGreen,
+                checkedBorderColor = SentinelGreen,
+                uncheckedThumbColor = SentinelMuted,
+                uncheckedTrackColor = SentinelContainer,
+                uncheckedBorderColor = SentinelContainerHigh,
+            ),
+        )
     }
 }
 

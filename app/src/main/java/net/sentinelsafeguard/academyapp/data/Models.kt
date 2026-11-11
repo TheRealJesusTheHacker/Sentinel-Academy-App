@@ -23,6 +23,23 @@ data class UserInfo(
     val promo: Boolean,
     val registry: Boolean,
     val leaderboard: Boolean,
+    val notifyCertAnniversary: Boolean,
+)
+
+/** The five account settings the G4 twins carry (SETTINGS-TWINS
+ *  2026-11-11): every /api/app/profile|social|notifications
+ *  mutation answers with the caller's FRESH set in exactly this
+ *  shape, and GET /api/me's user object carries the same five
+ *  fields (display_name, cert_name, registry, leaderboard,
+ *  notify_cert_anniversary) — so settings render cold from /api/me
+ *  and every save is confirmed by the server's own read-back, not
+ *  by the values the client sent. */
+data class AccountSettings(
+    val displayName: String,
+    val certName: String,
+    val registry: Boolean,
+    val leaderboard: Boolean,
+    val notifyCertAnniversary: Boolean,
 )
 
 /** GET /api/me — the authoritative user/progress object. */
