@@ -28,12 +28,33 @@ fun normalizeCertCode(raw: String): String =
 
 fun certCodeWellFormed(raw: String): Boolean = CERT_CODE_RE.matches(normalizeCertCode(raw))
 
+/** Length the way the server counts it: Unicode code points
+ *  (Python len()), NOT UTF-16 code units (Kotlin String.length).
+ *  The two disagree exactly at astral characters (emoji and
+ *  friends count once server-side, twice here) — DELTA AUDIT
+ *  2026-11-11 probes D/E proved the server counts code points
+ *  for the password policy, so every length mirror in this file
+ *  counts code points too. */
+fun codePointLength(s: String): Int = s.codePointCount(0, s.length)
+
+/** The first [max] code points of [s] — never severs a surrogate
+ *  pair (String.take counts UTF-16 units and can cut an astral
+ *  character in half, producing a lone surrogate the server
+ *  stores mangled). */
+fun takeCodePoints(s: String, max: Int): String =
+    if (codePointLength(s) <= max) s else s.substring(0, s.offsetByCodePoints(0, max))
+
 /** Password policy (contract §1.1): 10..200 characters, enforced
  *  server-side at signup; the app checks first so the learner
- *  hears it before the round trip. Returns a reason key or null. */
+ *  hears it before the round trip. Returns a reason key or null.
+ *  Counted in code points (see codePointLength): at the short
+ *  boundary a UTF-16 count would wave through a password the
+ *  server refuses as password_short, and at the long boundary
+ *  it would refuse one the server accepts — both proven live
+ *  by the DELTA AUDIT probes. */
 fun signupPasswordProblem(password: String): String? = when {
-    password.length < 10 -> "short"
-    password.length > 200 -> "long"
+    codePointLength(password) < 10 -> "short"
+    codePointLength(password) > 200 -> "long"
     else -> null
 }
 
@@ -102,22 +123,41 @@ fun finalUnlocked(courseStates: List<String?>): Boolean =
 //   save states BOTH current values explicitly, so what the user
 //   sees on the two switches is exactly what the save writes.
 // - /api/app/notifications likewise records one explicit boolean.
-// - /api/app/profile strips and caps names at 60 characters; the
-//   client caps input at the same 60 so the field the user edits
-//   is the field that can be saved — never silently truncated by
-//   the server into a different name than the one on screen.
+// - /api/app/profile's transform is strip, THEN cap at 60 code
+//   points, truncating without ever refusing for length — all
+//   three facts proven against production by the DELTA AUDIT
+//   probes (A: 61 ASCII -> stored 60; B: padding + 58 letters
+//   -> stored 58, so the cap lands AFTER the strip; C: 59
+//   letters + one astral character = 60 code points -> stored
+//   exactly, so the count is code points). The client mirrors
+//   that transform exactly: the payload applies it outright, and
+//   the input cap counts code points of the trimmed core
+//   (whitespace rides free, so typing is never fought) — what
+//   the app sends is what the server stores, byte for byte.
 // ---------------------------------------------------------------------------
 
 /** The server's profile name cap, mirrored at input time. */
 const val SETTINGS_NAME_MAX: Int = 60
 
-fun capSettingsName(raw: String): String = raw.take(SETTINGS_NAME_MAX)
+/** Input cap for the name fields: the trimmed core is capped at
+ *  the server's 60 code points; surrounding whitespace is not
+ *  counted (the server strips before it caps, and eating a
+ *  space mid-typing would fight the learner's thumbs). Never
+ *  severs a surrogate pair. */
+fun capSettingsName(raw: String): String {
+    val core = raw.trim()
+    if (core.isEmpty()) return raw
+    val lead = raw.takeWhile { it.isWhitespace() }
+    val trail = raw.takeLastWhile { it.isWhitespace() }
+    return lead + takeCodePoints(core, SETTINGS_NAME_MAX) + trail
+}
 
-/** Profile payload: both names, stripped — the exact body the
- *  twin grades. */
+/** Profile payload: both names put through the server's own
+ *  transform (strip, then cap at 60 code points) — the exact
+ *  body the twin grades, and exactly what it will store. */
 fun profilePayload(displayName: String, certName: String): Map<String, String> = mapOf(
-    "display_name" to displayName.trim(),
-    "cert_name" to certName.trim(),
+    "display_name" to takeCodePoints(displayName.trim(), SETTINGS_NAME_MAX),
+    "cert_name" to takeCodePoints(certName.trim(), SETTINGS_NAME_MAX),
 )
 
 /** Client pre-flight twin of the server's names_required refusal:

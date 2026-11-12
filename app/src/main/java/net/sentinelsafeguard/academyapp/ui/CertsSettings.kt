@@ -267,6 +267,7 @@ fun SettingsScreen(vm: AcademyViewModel, reduced: Boolean) {
     val pwShort = stringResource(R.string.auth_error_password_short)
     val pwLong = stringResource(R.string.auth_error_password_long)
     val pwFill = stringResource(R.string.settings_password_fill)
+    val pwNotConfirmed = stringResource(R.string.settings_password_not_confirmed)
 
     Column(
         modifier = Modifier
@@ -594,7 +595,7 @@ fun SettingsScreen(vm: AcademyViewModel, reduced: Boolean) {
         )
         when {
             pwChanged -> { Spacer(Modifier.height(8.dp)); Text(stringResource(R.string.settings_password_changed), style = MaterialTheme.typography.bodyMedium, color = SentinelGreen) }
-            pwNote != null -> { Spacer(Modifier.height(8.dp)); ErrorLine(pwNote?.let { if (it == AcademyViewModel.NETWORK_ERROR) netError else it } ?: "") }
+            pwNote != null -> { Spacer(Modifier.height(8.dp)); ErrorLine(pwNote?.let { when (it) { AcademyViewModel.NETWORK_ERROR -> netError; AcademyViewModel.PASSWORD_NOT_CONFIRMED -> pwNotConfirmed; else -> it } } ?: "") }
         }
         Spacer(Modifier.height(24.dp))
         Text(stringResource(R.string.settings_signout_body), style = MaterialTheme.typography.bodyMedium, color = SentinelMuted)

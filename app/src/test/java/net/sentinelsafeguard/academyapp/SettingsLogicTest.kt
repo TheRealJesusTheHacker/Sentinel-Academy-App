@@ -52,6 +52,36 @@ class SettingsLogicTest {
         assertEquals("Ada", capSettingsName("Ada"))
     }
 
+    // DELTA AUDIT 2026-11-11: the server's transform is strip,
+    // THEN cap at 60 CODE POINTS (production probes A/B/C). The
+    // first two tests below fail against the shipped 1.1.2 code
+    // (raw String.take(60), UTF-16 units) and pin the fix.
+
+    @Test
+    fun settingsNameCapCountsCodePointsAndNeverSeversASurrogatePair() {
+        val emoji = "🎓"
+        val sixtyPoints = "C".repeat(59) + emoji // 60 code points, 61 UTF-16 units
+        assertEquals(sixtyPoints, capSettingsName(sixtyPoints))
+        // One more character over: the cap drops the newcomer and
+        // keeps the astral character whole — no lone surrogate.
+        assertEquals(sixtyPoints, capSettingsName(sixtyPoints + "x"))
+        assertEquals(sixtyPoints, profilePayload(sixtyPoints + "x", "Ada")["display_name"])
+    }
+
+    @Test
+    fun settingsNameCapLandsAfterTheStripLikeTheServer() {
+        // Padding does not eat the letter budget: probe B's input
+        // keeps all 58 letters client-side too.
+        val padded = "     " + "B".repeat(58)
+        assertEquals("B".repeat(58), capSettingsName(padded).trim())
+        assertEquals("B".repeat(58), profilePayload(padded, "Ada")["display_name"])
+        // And the payload applies the server's transform outright:
+        // a 61-letter name goes on the wire as the 60 the server
+        // will store (probe A), not as a refusal or a longer body.
+        assertEquals("A".repeat(60), profilePayload("A".repeat(61), "Ada")["display_name"])
+        assertEquals("Ada", profilePayload("  Ada  ", "Ada")["display_name"])
+    }
+
     // ---------------- Social / notifications payloads ----------------
 
     @Test
@@ -129,5 +159,21 @@ class SettingsLogicTest {
         assertNull(signupPasswordProblem("x".repeat(10)))
         assertNull(signupPasswordProblem("x".repeat(200)))
         assertEquals("long", signupPasswordProblem("x".repeat(201)))
+    }
+
+    @Test
+    fun newPasswordPreflightCountsCodePointsLikeTheServer() {
+        // DELTA AUDIT probes D/E: the server counts code points.
+        // 8 letters + one astral character = 9 code points (10
+        // UTF-16 units): the server refuses password_short, and
+        // the pre-flight must say so too — the shipped UTF-16
+        // count waved it through.
+        assertEquals("short", signupPasswordProblem("D".repeat(8) + "🎓"))
+        assertNull(signupPasswordProblem("D".repeat(9) + "🎓")) // 10 code points
+        // 199 letters + one astral character = 200 code points
+        // (201 UTF-16 units): the server ACCEPTS it — a client
+        // "long" refusal here would refuse what the server takes.
+        assertNull(signupPasswordProblem("E".repeat(199) + "🎓"))
+        assertEquals("long", signupPasswordProblem("E".repeat(200) + "🎓")) // 201 code points
     }
 }

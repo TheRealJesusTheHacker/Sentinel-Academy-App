@@ -179,6 +179,7 @@
     <string name="settings_password_change">Change password</string>
     <string name="settings_password_fill">Enter your current password and a new one.</string>
     <string name="settings_password_changed">Password changed. You\'re still signed in here; your other devices were signed out.</string>
+    <string name="settings_password_not_confirmed">The Academy did not confirm the change — your password was not changed.</string>
     <string name="settings_promo_title">ENTITLEMENT CODE</string>
     <string name="settings_promo_body">If Sentinel gave you an entitlement code, enter it here. A valid code is applied to your account permanently by the Academy server.</string>
     <string name="settings_promo_hint">Code</string>

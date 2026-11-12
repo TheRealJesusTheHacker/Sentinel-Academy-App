@@ -178,6 +178,7 @@
     <string name="settings_password_change">Cambiar contraseña</string>
     <string name="settings_password_fill">Escribe tu contraseña actual y una nueva.</string>
     <string name="settings_password_changed">Contraseña cambiada. Sigues con la sesión iniciada aquí; tus otros dispositivos fueron desconectados.</string>
+    <string name="settings_password_not_confirmed">La Academy no confirmó el cambio — tu contraseña no se modificó.</string>
     <string name="settings_promo_title">CÓDIGO DE ACCESO</string>
     <string name="settings_promo_body">Si Sentinel te dio un código de acceso, escríbelo aquí. El servidor de la Academy aplica un código válido a tu cuenta de forma permanente.</string>
     <string name="settings_promo_hint">Código</string>

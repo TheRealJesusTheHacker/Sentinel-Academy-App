@@ -189,6 +189,13 @@ class AcademyViewModel(app: Application) : AndroidViewModel(app) {
         homeError = null
         catalogFailed = false
         catalog = null
+        // A save that met a 401 returns early into expireSession
+        // and never reaches its own reset; without this line the
+        // flag stayed set for the life of the process and every
+        // settings save was dead after the next sign-in (DELTA
+        // AUDIT 2026-11-11, finding DA-1). This function is the
+        // one choke point both expiry and sign-out pass through.
+        settingsBusy = false
     }
 
     private fun expireSession() {
@@ -359,7 +366,12 @@ class AcademyViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             settingsBusy = true
             when (val r = api.changePassword(current, new)) {
-                is ApiResult.Ok -> onResult(true, null)
+                // The parse reads the body's own "ok" flag: a 200
+                // that does not confirm the change is NOT a
+                // success and must never wear the success copy
+                // (DELTA AUDIT 2026-11-11, finding DA-4).
+                is ApiResult.Ok ->
+                    if (r.value) onResult(true, null) else onResult(false, PASSWORD_NOT_CONFIRMED)
                 is ApiResult.Err -> {
                     if (r.status == 401) return@launch expireSession()
                     onResult(false, r.serverMessage ?: NETWORK_ERROR)
@@ -569,6 +581,7 @@ class AcademyViewModel(app: Application) : AndroidViewModel(app) {
         // Sentinel messages the UI maps to string resources; the
         // server's own words are preferred whenever it sent any.
         const val NETWORK_ERROR = "NETWORK_ERROR"
+        const val PASSWORD_NOT_CONFIRMED = "PASSWORD_NOT_CONFIRMED"
         const val PASSWORD_SHORT = "PASSWORD_SHORT"
         const val PASSWORD_LONG = "PASSWORD_LONG"
         const val DUPLICATE_EMAIL = "DUPLICATE_EMAIL"
