@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Sentinel Academy
+Comment=Sentinel Academy — courses, exams and certificates from Sentinel Safeguard
+Exec=/opt/sentinel-academy/bin/SentinelAcademy
+Icon=/opt/sentinel-academy/lib/SentinelAcademy.png
+Terminal=false
+Type=Application
+Categories=Education;

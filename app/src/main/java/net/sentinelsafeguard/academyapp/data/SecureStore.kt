@@ -46,7 +46,7 @@ import java.security.SecureRandom
 // res/xml/backup_rules.xml + data_extraction_rules.xml): token,
 // device id, and verifier are device-bound by design.
 // ---------------------------------------------------------------------------
-class SecureStore(context: Context) {
+class SecureStore(context: Context) : AppStore {
 
     private val prefs = run {
         val masterKey = MasterKey.Builder(context)
@@ -63,20 +63,20 @@ class SecureStore(context: Context) {
 
     // ---- Academy session (the token IS a sessions row) ----
 
-    fun saveSession(token: String, expiresAtEpochSec: Long) {
+    override fun saveSession(token: String, expiresAtEpochSec: Long) {
         prefs.edit()
             .putString(KEY_TOKEN, token)
             .putLong(KEY_TOKEN_EXPIRES, expiresAtEpochSec)
             .apply()
     }
 
-    fun sessionToken(): String? = prefs.getString(KEY_TOKEN, null)?.takeIf { it.isNotBlank() }
+    override fun sessionToken(): String? = prefs.getString(KEY_TOKEN, null)?.takeIf { it.isNotBlank() }
 
     /** Server-issued expiry of the stored token (epoch seconds),
      *  or 0 when no session is stored. */
-    fun sessionExpiresAt(): Long = prefs.getLong(KEY_TOKEN_EXPIRES, 0L)
+    override fun sessionExpiresAt(): Long = prefs.getLong(KEY_TOKEN_EXPIRES, 0L)
 
-    fun clearSession() {
+    override fun clearSession() {
         prefs.edit().remove(KEY_TOKEN).remove(KEY_TOKEN_EXPIRES).apply()
     }
 
@@ -86,7 +86,7 @@ class SecureStore(context: Context) {
      *  ask and persisted with the install. 32 lowercase hex chars
      *  (128 bits), the same shape the server's web client carries
      *  in its `sa-bid` cookie (secrets.token_hex(16)). */
-    fun deviceId(): String {
+    override fun deviceId(): String {
         prefs.getString(KEY_DEVICE_ID, null)?.let { if (it.length == 32) return it }
         val bytes = ByteArray(16).also { SecureRandom().nextBytes(it) }
         val id = bytes.joinToString("") { "%02x".format(it) }
@@ -96,11 +96,11 @@ class SecureStore(context: Context) {
 
     // ---- App-lock PIN (verifier only; the PIN is never stored) ----
 
-    fun hasPin(): Boolean = prefs.contains(KEY_PIN_HASH) && prefs.contains(KEY_PIN_SALT)
+    override fun hasPin(): Boolean = prefs.contains(KEY_PIN_HASH) && prefs.contains(KEY_PIN_SALT)
 
     /** Sets (or replaces) the app-lock PIN, storing only verifier
      *  material: a fresh random salt and the salted SHA-256. */
-    fun setPin(pin: String) {
+    override fun setPin(pin: String) {
         val salt = ByteArray(16).also { SecureRandom().nextBytes(it) }
         prefs.edit()
             .putString(KEY_PIN_SALT, Base64.encodeToString(salt, Base64.NO_WRAP))
@@ -110,7 +110,7 @@ class SecureStore(context: Context) {
 
     /** Constant-time verifier check; false on any missing or
      *  malformed stored material. */
-    fun checkPin(pin: String): Boolean {
+    override fun checkPin(pin: String): Boolean {
         val saltB64 = prefs.getString(KEY_PIN_SALT, null) ?: return false
         val hashB64 = prefs.getString(KEY_PIN_HASH, null) ?: return false
         val salt = runCatching { Base64.decode(saltB64, Base64.NO_WRAP) }.getOrNull() ?: return false
@@ -118,7 +118,7 @@ class SecureStore(context: Context) {
         return MessageDigest.isEqual(expected, hashPin(salt, pin))
     }
 
-    fun clearPin() {
+    override fun clearPin() {
         prefs.edit().remove(KEY_PIN_HASH).remove(KEY_PIN_SALT).apply()
     }
 
@@ -126,7 +126,7 @@ class SecureStore(context: Context) {
      *  verifier. (A fresh device id is minted on next ask; the
      *  server treats it as a new browser, which is the honest
      *  consequence of wiping the install's identity.) */
-    fun clearAll() {
+    override fun clearAll() {
         prefs.edit().clear().apply()
     }
 

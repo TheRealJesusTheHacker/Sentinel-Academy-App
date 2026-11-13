@@ -1,11 +1,12 @@
 package net.sentinelsafeguard.academyapp.ui
 
-import android.app.Application
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import net.sentinelsafeguard.academyapp.data.AcademyApi
 import net.sentinelsafeguard.academyapp.data.AccountSettings
@@ -18,7 +19,7 @@ import net.sentinelsafeguard.academyapp.data.LessonPayload
 import net.sentinelsafeguard.academyapp.data.Me
 import net.sentinelsafeguard.academyapp.data.Paper
 import net.sentinelsafeguard.academyapp.data.ScoreResult
-import net.sentinelsafeguard.academyapp.data.SecureStore
+import net.sentinelsafeguard.academyapp.data.AppStore
 import net.sentinelsafeguard.academyapp.data.Streaks
 import net.sentinelsafeguard.academyapp.data.VerifyResult
 import net.sentinelsafeguard.academyapp.data.sessionExpired
@@ -29,7 +30,7 @@ import net.sentinelsafeguard.academyapp.data.withSettings
 //
 // Session law (contract §1.2/§1.3): the token is a server sessions
 // row with a fixed 7-day TTL and NO sliding renewal. The app
-// stores it in SecureStore, checks the stored expiry up front,
+// stores it in the AppStore, checks the stored expiry up front,
 // and treats any 401 from an authenticated call as expiry: the
 // session is cleared locally and the learner lands on the sign-in
 // screen with an honest notice — never a dead screen, never a
@@ -43,9 +44,21 @@ import net.sentinelsafeguard.academyapp.data.withSettings
 
 enum class AppPhase { BOOT, LOCKED, AUTH, PENDING_CONFIRM, MAIN }
 
-class AcademyViewModel(app: Application) : AndroidViewModel(app) {
+class AcademyViewModel(
+    val store: AppStore,
+    catalogCacheDir: java.io.File,
+    userAgent: String,
+) {
 
-    val store: SecureStore = SecureStore(app)
+    /** Main-thread scope standing in for viewModelScope (the
+     *  desktop port's seam): same dispatcher, same lifetime —
+     *  the platform holder cancels it via [close] when the
+     *  platform view-model is cleared. */
+    private val vmScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+
+    fun close() {
+        vmScope.cancel()
+    }
 
     /** The anonymous catalog's validator cache (CATALOG-ETAG
      *  2026-11-11): public content only, integrity-pinned by its
@@ -55,7 +68,8 @@ class AcademyViewModel(app: Application) : AndroidViewModel(app) {
      *  catalog is never written to it. */
     private val api = AcademyApi(
         store,
-        CatalogCache(java.io.File(app.filesDir, "catalog_cache")),
+        CatalogCache(catalogCacheDir),
+        userAgent = userAgent,
     )
 
     var phase by mutableStateOf(AppPhase.BOOT)
@@ -136,7 +150,7 @@ class AcademyViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     private fun loadCatalog() {
-        viewModelScope.launch {
+        vmScope.launch {
             when (val r = api.catalog()) {
                 is ApiResult.Ok -> {
                     catalog = r.value
@@ -148,7 +162,7 @@ class AcademyViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun refreshAll() {
-        viewModelScope.launch {
+        vmScope.launch {
             busy = true
             when (val r = api.me()) {
                 is ApiResult.Ok -> {
@@ -212,7 +226,7 @@ class AcademyViewModel(app: Application) : AndroidViewModel(app) {
     // ---------------- Auth ----------------
 
     fun login(email: String, password: String) {
-        viewModelScope.launch {
+        vmScope.launch {
             busy = true; authError = null
             when (val r = api.login(email.trim(), password)) {
                 is ApiResult.Ok -> {
@@ -233,7 +247,7 @@ class AcademyViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun signup(email: String, password: String, displayName: String, track: String, promo: String?) {
-        viewModelScope.launch {
+        vmScope.launch {
             busy = true; authError = null
             when (val r = api.signup(email.trim(), password, displayName.trim(), track, promo)) {
                 is ApiResult.Ok -> {
@@ -268,7 +282,7 @@ class AcademyViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun logout() {
-        viewModelScope.launch {
+        vmScope.launch {
             busy = true
             // Server revokes ONLY this token; the local copy goes
             // regardless of the round trip's outcome.
@@ -288,7 +302,7 @@ class AcademyViewModel(app: Application) : AndroidViewModel(app) {
     var actionMessage by mutableStateOf<String?>(null)
 
     fun enroll(track: String) {
-        viewModelScope.launch {
+        vmScope.launch {
             busy = true
             when (val r = api.enroll(track)) {
                 is ApiResult.Ok -> { actionMessage = null; refreshAll() }
@@ -302,7 +316,7 @@ class AcademyViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun applyPromo(code: String, onResult: (Boolean, String?) -> Unit) {
-        viewModelScope.launch {
+        vmScope.launch {
             when (val r = api.promo(code.trim())) {
                 is ApiResult.Ok -> { refreshAll(); onResult(true, null) }
                 is ApiResult.Err -> {
@@ -331,7 +345,7 @@ class AcademyViewModel(app: Application) : AndroidViewModel(app) {
         block: suspend () -> ApiResult<AccountSettings>,
         onResult: (Boolean, String?) -> Unit,
     ) {
-        viewModelScope.launch {
+        vmScope.launch {
             settingsBusy = true
             when (val r = block()) {
                 is ApiResult.Ok -> { applySettings(r.value); onResult(true, null) }
@@ -363,7 +377,7 @@ class AcademyViewModel(app: Application) : AndroidViewModel(app) {
      *  design, so nothing local changes — the UI's success copy
      *  states that plainly. */
     fun changePassword(current: String, new: String, onResult: (Boolean, String?) -> Unit) {
-        viewModelScope.launch {
+        vmScope.launch {
             settingsBusy = true
             when (val r = api.changePassword(current, new)) {
                 // The parse reads the body's own "ok" flag: a 200
@@ -391,7 +405,7 @@ class AcademyViewModel(app: Application) : AndroidViewModel(app) {
         private set
 
     fun openLesson(track: String, course: String, lessonSlug: String) {
-        viewModelScope.launch {
+        vmScope.launch {
             lessonLoading = true; lessonError = null; lesson = null
             when (val r = api.lesson(track, course, lessonSlug)) {
                 is ApiResult.Ok -> lesson = r.value
@@ -409,7 +423,7 @@ class AcademyViewModel(app: Application) : AndroidViewModel(app) {
      *  server-side — the app then refreshes /api/me. */
     fun submitCheck(practiceIndex: Int?, answer: Int, onResult: (CheckResult?) -> Unit) {
         val l = lesson ?: return onResult(null)
-        viewModelScope.launch {
+        vmScope.launch {
             when (val r = api.check(l.track, l.courseSlug, lSlugOf(l), answer, practiceIndex)) {
                 is ApiResult.Ok -> {
                     if (practiceIndex == null && r.value.correct) refreshAll()
@@ -454,7 +468,7 @@ class AcademyViewModel(app: Application) : AndroidViewModel(app) {
         private set
 
     fun startExam(track: String, kind: String, course: String?, mode: String?) {
-        viewModelScope.launch {
+        vmScope.launch {
             busy = true; examError = null; scoreResult = null
             reviewPaper = null; reviewAnswers = emptyList()
             when (val r = api.paper(track, kind, course, mode)) {
@@ -474,7 +488,7 @@ class AcademyViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun refreshCooldown(track: String) {
-        viewModelScope.launch {
+        vmScope.launch {
             (api.status(track) as? ApiResult.Ok)?.let { cooldownSeconds = it.value.cooldownSeconds }
         }
     }
@@ -489,7 +503,7 @@ class AcademyViewModel(app: Application) : AndroidViewModel(app) {
 
     fun submitExam(answers: List<Int>) {
         val p = paper ?: return
-        viewModelScope.launch {
+        vmScope.launch {
             busy = true; examError = null
             when (val r = api.score(p.paper, answers, examBlurs)) {
                 is ApiResult.Ok -> {
@@ -525,7 +539,7 @@ class AcademyViewModel(app: Application) : AndroidViewModel(app) {
         private set
 
     fun issueCertificate(track: String, passToken: String) {
-        viewModelScope.launch {
+        vmScope.launch {
             busy = true; issueError = null
             when (val r = api.issue(track, passToken)) {
                 is ApiResult.Ok -> {
@@ -552,7 +566,7 @@ class AcademyViewModel(app: Application) : AndroidViewModel(app) {
         private set
 
     fun verify(code: String) {
-        viewModelScope.launch {
+        vmScope.launch {
             verifyBusy = true; verifyResult = null
             when (val r = api.verify(code)) {
                 is ApiResult.Ok -> verifyResult = r.value

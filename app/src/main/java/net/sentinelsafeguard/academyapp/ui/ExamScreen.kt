@@ -1,7 +1,5 @@
 package net.sentinelsafeguard.academyapp.ui
 
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,8 +20,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import net.sentinelsafeguard.academyapp.R
@@ -228,7 +224,7 @@ private fun ScoreResultView(
     onDone: () -> Unit,
     onGoCerts: () -> Unit,
 ) {
-    val context = LocalContext.current
+    val openUrl = rememberUrlOpener()
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(20.dp),
@@ -395,7 +391,7 @@ private fun ScoreResultView(
                                 modifier = Modifier.fillMaxWidth(),
                                 onClick = {
                                     val url = AcademyApi.BASE_URL + vm.issueResult!!.url
-                                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                                    openUrl(url)
                                 },
                             )
                         }

@@ -204,5 +204,9 @@
     <string name="settings_signout_body">Cerrar sesión termina solo la sesión de este dispositivo. Tu progreso y tus certificados quedan en tu cuenta.</string>
     <string name="settings_about">ACERCA DE</string>
     <string name="settings_server">Academy: academy.sentinelsafeguard.net</string>
-    <string name="settings_language_note">La aplicación sigue el idioma de tu dispositivo. Cada pista enseña en su propio idioma — las pistas en español son pistas separadas en el camino.</string>
+    <string name="settings_reduce_motion">Reducir el movimiento</string>
+    <string name="settings_reduce_motion_body">Calma la animación en esta aplicación en este dispositivo. Las celebraciones de certificados también lo respetan.</string>
+    <string name="about_storage_os">Las credenciales de inicio de sesión en este dispositivo están protegidas por el almacenamiento de claves del sistema operativo.</string>
+    <string name="about_storage_fallback">El almacenamiento de claves del sistema no está disponible en esta máquina: las credenciales están cifradas con una clave guardada en un archivo protegido por permisos.</string>
+        <string name="settings_language_note">La aplicación sigue el idioma de tu dispositivo. Cada pista enseña en su propio idioma — las pistas en español son pistas separadas en el camino.</string>
 </resources>

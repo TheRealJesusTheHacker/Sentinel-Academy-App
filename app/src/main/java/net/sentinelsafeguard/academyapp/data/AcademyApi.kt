@@ -26,7 +26,7 @@ import java.net.URLEncoder
 //   cookie on EVERY call (contract §7, HARD requirement): paper
 //   issue/score bind to it, and the paper-exam-b rate bucket keys
 //   on it. Without it all app users would share one exam
-//   identity. The id comes from SecureStore (generated once).
+//   identity. The id comes from the AppStore (generated once).
 // - Lesson payloads are parsed into models that have no answer /
 //   explain field — even a hypothetical server regression could
 //   not put a key in the app's hands through this client, because
@@ -52,9 +52,10 @@ sealed class ApiResult<out T> {
 }
 
 class AcademyApi(
-    private val store: SecureStore,
+    private val store: AppStore,
     private val catalogCache: CatalogCache? = null,
     private val baseUrl: String = BASE_URL,
+    private val userAgent: String = "SentinelAcademyApp (Desktop)",
 ) {
     private data class Raw(
         val status: Int,
@@ -88,10 +89,7 @@ class AcademyApi(
             // An honest, stable client identity (the app names
             // itself; server logs and edge rules can tell the app
             // from a browser at a glance).
-            conn.setRequestProperty(
-                "User-Agent",
-                "SentinelAcademyApp/" + net.sentinelsafeguard.academyapp.BuildConfig.VERSION_NAME + " (Android)",
-            )
+            conn.setRequestProperty("User-Agent", userAgent)
             // §7 device identity — on every call, no exceptions.
             conn.setRequestProperty("Cookie", "sa-bid=" + store.deviceId())
             for ((name, value) in extraHeaders) {

@@ -205,5 +205,9 @@
     <string name="settings_signout_body">Signing out ends this device\'s session only. Your progress and certificates stay on your account.</string>
     <string name="settings_about">ABOUT</string>
     <string name="settings_server">Academy: academy.sentinelsafeguard.net</string>
-    <string name="settings_language_note">The app follows your device language. Each track teaches in its own language — Spanish tracks are separate tracks on the road.</string>
+    <string name="settings_reduce_motion">Reduce motion</string>
+    <string name="settings_reduce_motion_body">Calms animation in this app on this device. Certificate celebrations honor it too.</string>
+    <string name="about_storage_os">Sign-in credentials on this device are protected by the operating system key storage.</string>
+    <string name="about_storage_fallback">OS key storage unavailable on this machine — credentials are encrypted with a key stored in a permissions-locked file.</string>
+        <string name="settings_language_note">The app follows your device language. Each track teaches in its own language — Spanish tracks are separate tracks on the road.</string>
 </resources>

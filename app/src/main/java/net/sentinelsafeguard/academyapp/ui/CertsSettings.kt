@@ -30,9 +30,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -226,10 +223,7 @@ private fun VerifySection(vm: AcademyViewModel, reduced: Boolean) {
 
 @Composable
 fun SettingsScreen(vm: AcademyViewModel, reduced: Boolean) {
-    val context = LocalContext.current
-    val versionName = remember {
-        runCatching { context.packageManager.getPackageInfo(context.packageName, 0).versionName }.getOrNull() ?: ""
-    }
+    val versionName = appVersionName()
     var promoCode by remember { mutableStateOf("") }
     var promoNote by remember { mutableStateOf<String?>(null) }
     var promoOk by remember { mutableStateOf(false) }
@@ -627,6 +621,7 @@ fun SettingsScreen(vm: AcademyViewModel, reduced: Boolean) {
             Spacer(Modifier.height(4.dp))
             Text(stringResource(R.string.settings_language_note), style = MaterialTheme.typography.bodySmall, color = SentinelMuted)
         }
+        PlatformExtraSettings()
         Spacer(Modifier.height(24.dp))
     }
 }

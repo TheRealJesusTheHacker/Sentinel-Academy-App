@@ -1,6 +1,5 @@
 package net.sentinelsafeguard.academyapp.ui
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -21,7 +20,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,12 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.viewmodel.compose.viewModel
 import net.sentinelsafeguard.academyapp.R
 import net.sentinelsafeguard.academyapp.data.Track
 import net.sentinelsafeguard.academyapp.ui.theme.SentinelContainer
@@ -74,34 +67,14 @@ private sealed interface Detail {
 
 @Composable
 fun AppRoot() {
-    val vm: AcademyViewModel = viewModel()
+    val vm: AcademyViewModel = rememberAcademyViewModel()
     val reduced = rememberReducedMotion()
     var tab by remember { mutableStateOf(Tab.HOME) }
     var detail by remember { mutableStateOf<Detail?>(null) }
 
-    val lifecycleOwner = LocalLifecycleOwner.current
-    DisposableEffect(lifecycleOwner, vm) {
-        var stopped = false
-        val observer = LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_STOP -> {
-                    stopped = true
-                    vm.noteBackgrounded()
-                }
-                Lifecycle.Event.ON_RESUME -> {
-                    if (stopped) {
-                        stopped = false
-                        vm.relockIfArmed()
-                    }
-                }
-                else -> Unit
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
-    }
+    PlatformLifecycleEffects(vm)
 
-    BackHandler(enabled = detail != null) {
+    PlatformBackHandler(enabled = detail != null) {
         detail = when (val d = detail) {
             is Detail.Lesson -> Detail.Road(d.track)
             is Detail.Exam -> {

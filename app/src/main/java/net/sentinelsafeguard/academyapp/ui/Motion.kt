@@ -1,6 +1,5 @@
 package net.sentinelsafeguard.academyapp.ui
 
-import android.provider.Settings
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -22,7 +21,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -45,22 +43,6 @@ import net.sentinelsafeguard.academyapp.ui.theme.SentinelGreen
 // happened. Trust moments in this app — a submitted answer, a
 // claimed certificate — end on the morph, never on confetti.
 // ---------------------------------------------------------------------------
-
-/** True when the system asks for no animation (animator scale 0).
- *  Every motion in this layer resolves through this flag: reduced
- *  means crossfades only, zero positional travel. */
-@Composable
-fun rememberReducedMotion(): Boolean {
-    val context = LocalContext.current
-    val scale = remember {
-        Settings.Global.getFloat(
-            context.contentResolver,
-            Settings.Global.ANIMATOR_DURATION_SCALE,
-            1f,
-        )
-    }
-    return reducedMotion(scale)
-}
 
 /** The radio-tick ease: all acceleration up front, long settle.
  *  One curve across the app so surfaces feel related. */
