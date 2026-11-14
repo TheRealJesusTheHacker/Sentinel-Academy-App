@@ -139,7 +139,7 @@ compose.desktop {
     application {
         mainClass = "net.sentinelsafeguard.academyapp.desktop.MainKt"
         nativeDistributions {
-            targetFormats(TargetFormat.Deb, TargetFormat.Msi)
+            targetFormats(TargetFormat.Deb, TargetFormat.Exe)
             packageName = "sentinel-academy"
             packageVersion = "1.0.0"
             description = "Sentinel Academy — courses, exams and certificates from Sentinel Safeguard"
