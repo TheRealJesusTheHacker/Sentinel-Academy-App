@@ -1,0 +1,56 @@
+name: Desktop Release 1.0.0
+
+# Publishes the Desktop 1.0.0 packages to a GitHub Release.
+# Downloads the verified packages from sentinelsafeguard.net, checks their
+# SHA-256 in the runner (the run fails on any mismatch), then creates the
+# desktop-v1.0.0 release if it does not exist yet and uploads both assets.
+# Uses only the built-in GITHUB_TOKEN. Contains no secrets.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  desktop-release:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG: desktop-v1.0.0
+    steps:
+      - name: Download desktop packages
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          cd dist
+          curl -fL --retry 3 -O "https://sentinelsafeguard.net/static/downloads/Sentinel-Academy-Desktop-1.0.0.deb"
+          curl -fL --retry 3 -O "https://sentinelsafeguard.net/static/downloads/Sentinel-Academy-Desktop-1.0.0.exe"
+      - name: Verify SHA-256
+        run: |
+          set -euo pipefail
+          cd dist
+          cat > SHA256SUMS <<'SUMS_EOF'
+          163bfd0edcf53debedba2153d69d36e0006bfd1cefe6388bf080ec3c08d2a8dd  Sentinel-Academy-Desktop-1.0.0.deb
+          8f687ba73628354b6eabe34ef90e24c287181e582d7abeabc30694c1105b8f4a  Sentinel-Academy-Desktop-1.0.0.exe
+          SUMS_EOF
+          sha256sum -c SHA256SUMS
+      - name: Write release notes
+        run: |
+          cat > release-notes.md <<'NOTES_EOF'
+          Desktop edition 1.0.0 of Sentinel Academy for Windows and Linux.
+
+          Assets:
+          - Sentinel-Academy-Desktop-1.0.0.deb - Linux package (.deb), 89,180,104 bytes, SHA-256 163bfd0edcf53debedba2153d69d36e0006bfd1cefe6388bf080ec3c08d2a8dd
+          - Sentinel-Academy-Desktop-1.0.0.exe - Windows installer (.exe), 47,356,416 bytes, SHA-256 8f687ba73628354b6eabe34ef90e24c287181e582d7abeabc30694c1105b8f4a
+
+          These packages are the desktop editions of Sentinel Academy. The Android app is distributed separately.
+          NOTES_EOF
+      - name: Create release or upload assets
+        run: |
+          set -euo pipefail
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$TAG" --repo "$GITHUB_REPOSITORY" --clobber dist/Sentinel-Academy-Desktop-1.0.0.deb dist/Sentinel-Academy-Desktop-1.0.0.exe
+          else
+            gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --title "Sentinel Academy Desktop 1.0.0" --notes-file release-notes.md dist/Sentinel-Academy-Desktop-1.0.0.deb dist/Sentinel-Academy-Desktop-1.0.0.exe
+          fi
