@@ -111,6 +111,22 @@
             <sha256 value="8ce4250fe8e278e8f3606e9427989227da41464489b7fd9f27d987c23fd0963a" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
          </artifact>
       </component>
+      <component group="net.java.dev.jna" name="jna" version="5.14.0">
+         <artifact name="jna-5.14.0.jar">
+            <sha256 value="34ed1e1f27fa896bca50dbc4e99cf3732967cec387a7a0d5e3486c09673fe8c6" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="jna-5.14.0.pom">
+            <sha256 value="e04e25951501df25adc7b1dcdb6c53373c94897b84d3e14921292763ee07ae3d" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="net.java.dev.jna" name="jna-platform" version="5.14.0">
+         <artifact name="jna-platform-5.14.0.jar">
+            <sha256 value="ae4caceb3840730c2537f9b7fb55a01baba580286b4122951488bcee558c2449" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="jna-platform-5.14.0.pom">
+            <sha256 value="6cba0e04f9eecb16486000793bb27e103b0f4d0485e0554e2b4c0aed13d2ed16" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
       <component group="org.apache" name="apache" version="23">
          <artifact name="apache-23.pom">
             <sha256 value="bc10624e0623f36577fac5639ca2936d3240ed152fb6d8d533ab4d270543491c" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
@@ -142,6 +158,19 @@
             <sha256 value="0bbb3bf6d4d22a1bfa3c3c0927c29410af14a0fb26e3b02b93726f5c7e98aafd" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
          </artifact>
       </component>
+      <component group="org.jetbrains" name="annotations" version="13.0">
+         <artifact name="annotations-13.0.pom">
+            <sha256 value="965aeb2bedff369819bdde1bf7a0b3b89b8247dd69c88b86375d76163bb8c397" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains" name="annotations" version="23.0.0">
+         <artifact name="annotations-23.0.0.jar">
+            <sha256 value="7b0f19724082cbfcbc66e5abea2b9bc92cf08a1ea11e191933ed43801eb3cd05" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="annotations-23.0.0.pom">
+            <sha256 value="c9490f655132328df2cfbcfdf743f53fc3916d6c1d10437175a6ca6e3a67771c" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
       <component group="org.jetbrains.compose" name="compose-gradle-plugin" version="1.7.3">
          <artifact name="compose-gradle-plugin-1.7.3.jar">
             <sha256 value="d0fc223b3ccd5d0254d66959b1cc0c153523a26480ef0b03a46c5ab56de922bc" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
@@ -163,9 +192,256 @@
             <sha256 value="f426a4bcf3a27d598282ea102e73a3622d927638995f644aa34fc82992e5caeb" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
          </artifact>
       </component>
+      <component group="org.jetbrains.compose.animation" name="animation" version="1.7.3">
+         <artifact name="animation-1.7.3.module">
+            <sha256 value="66626e04d6c8ae38c3d99a72a723d2ea2c7a777802a08408ae269563e41dad8c" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.compose.animation" name="animation-core" version="1.7.3">
+         <artifact name="animation-core-1.7.3.module">
+            <sha256 value="0f8cb8d33695fa4b31a8de5e2838ef543e6d5c3d59fd86ab63c02921f8d72fe4" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.compose.animation" name="animation-core-desktop" version="1.7.3">
+         <artifact name="animation-core-desktop-1.7.3.jar">
+            <sha256 value="2b347abf6c48626153a02b70eef6bbe1d3c9527515d6f9f7eceaea3c398533bb" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="animation-core-desktop-1.7.3.module">
+            <sha256 value="56435c2ad42bbdfe16230a6a0ccb3f187043e2f35448e438e3c699c457ddf8bf" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.compose.animation" name="animation-desktop" version="1.7.3">
+         <artifact name="animation-desktop-1.7.3.jar">
+            <sha256 value="474e6bd2a6ac2362e5dabd780f93b852768640aa16403b0fc505da88177f97b3" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="animation-desktop-1.7.3.module">
+            <sha256 value="df4ea0505fea5c48d4009d85ca7f32807d5b2f32841c28a0e3fe53e3f838bc8c" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.compose.desktop" name="desktop" version="1.7.3">
+         <artifact name="desktop-1.7.3.module">
+            <sha256 value="c2a2bc938ce3b6037abbffedc39ca822b8e83855ccb9ccbf455f5e9adac6e0ab" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.compose.desktop" name="desktop-jvm" version="1.7.3">
+         <artifact name="desktop-jvm-1.7.3.jar">
+            <sha256 value="62c816073195cc0119dc1d66b178544bdb772ef8bee4879954528c6798b17ebe" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="desktop-jvm-1.7.3.module">
+            <sha256 value="5da371da3d474b13c6c79088bf2c53d84b0b7ab2c92971219bcd1cb3ad159ce6" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
       <component group="org.jetbrains.compose.desktop" name="desktop-jvm-windows-x64" version="1.7.3">
          <artifact name="desktop-jvm-windows-x64-1.7.3.pom">
             <sha256 value="fd2a4423351ae25a34319ade123b163847df389ad69ef216b081ef93867797da" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.compose.foundation" name="foundation" version="1.7.3">
+         <artifact name="foundation-1.7.3.module">
+            <sha256 value="f0b542f6339f07492fd7b694595576feed3b930e7df16c5e21392cd72df8d8f0" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.compose.foundation" name="foundation-desktop" version="1.7.3">
+         <artifact name="foundation-desktop-1.7.3.jar">
+            <sha256 value="e1dc2e97eca6acf5bb16fc587b7d92b09c89e3b7cec0589ea169a970d1c9fe48" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="foundation-desktop-1.7.3.module">
+            <sha256 value="364cbf344f31753cbce0e37a0e50fce0081cabc80ebe0d71c3f26c5359118724" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.compose.foundation" name="foundation-layout" version="1.7.3">
+         <artifact name="foundation-layout-1.7.3.module">
+            <sha256 value="7c2944756734550547f1c772f8d9a3e390a2f34c9ec46d7a9e505758f35872e3" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.compose.foundation" name="foundation-layout-desktop" version="1.7.3">
+         <artifact name="foundation-layout-desktop-1.7.3.jar">
+            <sha256 value="d2c867c13ff6632f9880e67dabab2e930007b008b9b22950fc2cc075008eceb6" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="foundation-layout-desktop-1.7.3.module">
+            <sha256 value="518f6f890542346ecb78e01dd11d01e36c7a8d1475468f653d0502b8c6b65779" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.compose.material" name="material" version="1.7.3">
+         <artifact name="material-1.7.3.module">
+            <sha256 value="3bfcf54bd741f12319e466fe83c8660b9c55fa863b37f0dee9cb8c74dc433edd" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.compose.material" name="material-desktop" version="1.7.3">
+         <artifact name="material-desktop-1.7.3.jar">
+            <sha256 value="c2121336aaaf79473d0c0347546af8d75f510e8a7774c04a903fb3cc697a5633" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="material-desktop-1.7.3.module">
+            <sha256 value="ade1d41b05ac163c27e20c381591ce6af0d2fd84216c8e0f2f90b7424786dbd3" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.compose.material" name="material-icons-core" version="1.7.3">
+         <artifact name="material-icons-core-1.7.3.module">
+            <sha256 value="6f330e6d0a62a292135a30c1c53ea5196ad7aeb048679af61e4fc92a662e9076" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.compose.material" name="material-icons-core-desktop" version="1.7.3">
+         <artifact name="material-icons-core-desktop-1.7.3.jar">
+            <sha256 value="bcf6c853b6db2ff148d2d3aad3b7a7ea54d93fc7b42e0afd840eb6daf1a1c681" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="material-icons-core-desktop-1.7.3.module">
+            <sha256 value="7b41005a04e4566ae953f73876202696deec54127e013cdc7bc3fb73467034e3" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.compose.material" name="material-icons-extended" version="1.7.3">
+         <artifact name="material-icons-extended-1.7.3.module">
+            <sha256 value="b1fa9ad76bde01d9869f9bb0c7129cd2b072794f237e04d15e3ef7c8a66a4872" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.compose.material" name="material-icons-extended-desktop" version="1.7.3">
+         <artifact name="material-icons-extended-desktop-1.7.3.jar">
+            <sha256 value="dc55d383dca8279e353917e5c5a93d192a95e7ca4f926ee55ee0b4627f99d860" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="material-icons-extended-desktop-1.7.3.module">
+            <sha256 value="3d82280d08f08cc3e3379f1ffe3887054a2fb837e49d2b63d4922e9a37fa79c5" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.compose.material" name="material-ripple" version="1.7.3">
+         <artifact name="material-ripple-1.7.3.module">
+            <sha256 value="29594b6f2d37fb862fbeed0d548b9d697ca127023c2f57eb543675022c79a1a7" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.compose.material" name="material-ripple-desktop" version="1.7.3">
+         <artifact name="material-ripple-desktop-1.7.3.jar">
+            <sha256 value="c5f6bdfb229a1794a838ed1f31f7299a3b516004beffe1a8bcca753aa268be09" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="material-ripple-desktop-1.7.3.module">
+            <sha256 value="29c0033033209304df068c9d27898507ce958d1516dc45346326f4e4c3adb8cb" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.compose.material3" name="material3" version="1.7.3">
+         <artifact name="material3-1.7.3.module">
+            <sha256 value="b8b53c65f254b3e2e8ae6611daa9a7f65302916fa59b2da5c855eb56c2d31210" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.compose.material3" name="material3-desktop" version="1.7.3">
+         <artifact name="material3-desktop-1.7.3.jar">
+            <sha256 value="7642434d7d79bf14886f2f0d1739e0a2e4428effa8a69e57c82b1540c19ace12" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="material3-desktop-1.7.3.module">
+            <sha256 value="04cc7cdb2c9d177a41231c0b2fcecd784875151e332977cd8affd10a4aeae9f4" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.compose.runtime" name="runtime" version="1.7.3">
+         <artifact name="runtime-1.7.3.module">
+            <sha256 value="8a4c7a6a446b97e81ebb33a21c54cce93f27ca88e4471ceda3e1b03420fd20cb" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.compose.runtime" name="runtime-desktop" version="1.7.3">
+         <artifact name="runtime-desktop-1.7.3.jar">
+            <sha256 value="76e3250547b9ca3cb1a49c272933b25cb3bccbc9ba12775dd6161a63d9aa7cf1" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="runtime-desktop-1.7.3.module">
+            <sha256 value="1192b7128c80e04f3aedb8df5586a32b9c484a7d4a4ea5a2ce2a19335000d454" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.compose.runtime" name="runtime-saveable" version="1.7.3">
+         <artifact name="runtime-saveable-1.7.3.module">
+            <sha256 value="e462a399c5c03f56189c41afccafc5093806e443446ab59ca8af29eaf0f9718a" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.compose.runtime" name="runtime-saveable-desktop" version="1.7.3">
+         <artifact name="runtime-saveable-desktop-1.7.3.jar">
+            <sha256 value="4306363be90eaabe74b900db4c32ed1f15c7548e5b30a7093c4ee40c436b9b8c" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="runtime-saveable-desktop-1.7.3.module">
+            <sha256 value="6633ac24a3c006ac0d33d39b855996c726563a48be43c16aa09819d5a0c9f904" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.compose.ui" name="ui" version="1.7.3">
+         <artifact name="ui-1.7.3.module">
+            <sha256 value="27c14fbab7ddb879179482022e10ea2124247b4d0b77be44897d6247ed8848bb" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.compose.ui" name="ui-desktop" version="1.7.3">
+         <artifact name="ui-desktop-1.7.3.jar">
+            <sha256 value="d8a43d211a85104da5a82459307825454b4038095700bc240057666d70f1aac6" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="ui-desktop-1.7.3.module">
+            <sha256 value="6ea37b5be36fd2f5ec0d1451aee2514c8da961f3bbd1a4ad112b71fed9b35709" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.compose.ui" name="ui-geometry" version="1.7.3">
+         <artifact name="ui-geometry-1.7.3.module">
+            <sha256 value="f0a0693e6a1f937de2d030d383e2030fef87a3f2bc942a237c9f427eff2a0559" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.compose.ui" name="ui-geometry-desktop" version="1.7.3">
+         <artifact name="ui-geometry-desktop-1.7.3.jar">
+            <sha256 value="4b86c961c0b4bce7995329fd57d4339ede11cb75d7ec90bc1b9913396addb30f" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="ui-geometry-desktop-1.7.3.module">
+            <sha256 value="e8965ded9a111844771803c80fc19722e389e70ffb9a5b4ec40e0b2a0a3282fc" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.compose.ui" name="ui-graphics" version="1.7.3">
+         <artifact name="ui-graphics-1.7.3.module">
+            <sha256 value="74c9b8ddcfd03e3146089e5dade57789089bcb8848cd8b96a7b3013a3345b78f" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.compose.ui" name="ui-graphics-desktop" version="1.7.3">
+         <artifact name="ui-graphics-desktop-1.7.3.jar">
+            <sha256 value="9109d77cc262f90408169b1ca0ba2d15135b6034e377a80bbf3ec0234954e852" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="ui-graphics-desktop-1.7.3.module">
+            <sha256 value="9a4514caeb2d46224769a8fc8d9d0282f015f2acff67c3b3909f39ededc5bc4e" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.compose.ui" name="ui-text" version="1.7.3">
+         <artifact name="ui-text-1.7.3.module">
+            <sha256 value="8e4fd97d20d8192e21b686c717b7d1104ab25d7474ae1385ed90900a92753b22" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.compose.ui" name="ui-text-desktop" version="1.7.3">
+         <artifact name="ui-text-desktop-1.7.3.jar">
+            <sha256 value="80e07e4ca739f7b6122f63e9a17e6853b947220ecb1180f8dcaf419d0e468996" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="ui-text-desktop-1.7.3.module">
+            <sha256 value="f92d48e14feda3815f11bb70311677a45c4d851eaa6ba4b4384b584cd19d8b12" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.compose.ui" name="ui-tooling-preview" version="1.7.3">
+         <artifact name="ui-tooling-preview-1.7.3.module">
+            <sha256 value="51e4a93c1df3240901cac646a62f6f5214ce378f79fab41c4455af62d8edc7b0" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.compose.ui" name="ui-tooling-preview-desktop" version="1.7.3">
+         <artifact name="ui-tooling-preview-desktop-1.7.3.jar">
+            <sha256 value="c5cfad0b125e978d915f8b4c38630bc5d548e59fe8a0e838c0cc84283c605943" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="ui-tooling-preview-desktop-1.7.3.module">
+            <sha256 value="4edad7a49b68ce1c58aeaefa6a06640849cd338e9b9f1f1532fda73908228c56" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.compose.ui" name="ui-unit" version="1.7.3">
+         <artifact name="ui-unit-1.7.3.module">
+            <sha256 value="d760524e76e09828f4a1adedbc6f3d64667e83818ff40d86f0c5ce00d948ad68" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.compose.ui" name="ui-unit-desktop" version="1.7.3">
+         <artifact name="ui-unit-desktop-1.7.3.jar">
+            <sha256 value="598b52e257ed674145694b9790a7383a90fed2ec7154ba09ace4aa983c65b1a2" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="ui-unit-desktop-1.7.3.module">
+            <sha256 value="4ec729ee773bd6a77ac7a6ca09ac8fa8f5057a38098dc9549d84a6e389a5ee9c" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.compose.ui" name="ui-util" version="1.7.3">
+         <artifact name="ui-util-1.7.3.module">
+            <sha256 value="abef52e894c0ab5a1c45bf83665e3962f3b2f5623856ef1ab746c81e99ac07ac" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.compose.ui" name="ui-util-desktop" version="1.7.3">
+         <artifact name="ui-util-desktop-1.7.3.jar">
+            <sha256 value="161dcc73b929da61cee50045e96fb02f1633c36f18a2ef38b5c2c44c38606b52" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="ui-util-desktop-1.7.3.module">
+            <sha256 value="2d4a27ddedfbd22d803a0d7706f294f8a1b917548c7aeed3d41a79f5bacb3f52" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
          </artifact>
       </component>
       <component group="org.jetbrains.intellij.deps" name="trove4j" version="1.0.20200330">
@@ -313,6 +589,14 @@
          </artifact>
          <artifact name="kotlin-stdlib-1.6.10.pom">
             <sha256 value="3b08709ea4bae3669d9a29b9e007a8550b10c1516c10a8f6dbe9f94ab81dc46d" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.kotlin" name="kotlin-stdlib" version="2.0.20">
+         <artifact name="kotlin-stdlib-2.0.20.jar">
+            <sha256 value="fb169596659a518357c4b2c16f43dc75ab1c4980565ed4b4a317a050e5e39006" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="kotlin-stdlib-2.0.20.module">
+            <sha256 value="dc051dc04c6a196f2d06d0d3c9af33b9f12bc9b4fe139ae1290140508236b67b" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
          </artifact>
       </component>
       <component group="org.jetbrains.kotlin" name="kotlin-stdlib-common" version="1.6.10">
@@ -473,6 +757,19 @@
             <sha256 value="2e530202bba633c5ab31e46f9ff9cdad9b9f4cd4c072160b2035fecbff803317" origin="Generated by Gradle" reason="A key couldn't be downloaded"/>
          </artifact>
       </component>
+      <component group="org.jetbrains.skiko" name="skiko" version="0.8.18">
+         <artifact name="skiko-0.8.18.module">
+            <sha256 value="a9b183494f8454fb57ec1ffff94cb2a8beeedda1b73d28db6eb4b8f8dc0a53cb" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.skiko" name="skiko-awt" version="0.8.18">
+         <artifact name="skiko-awt-0.8.18.jar">
+            <sha256 value="637f5de1a208f1368ac51b5a286a4827cec828cd62dda332dc3400b8543e243d" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="skiko-awt-0.8.18.module">
+            <sha256 value="c7d24e37e8ff8ece18ece744834171727a2bd4bef3ebf8590653758a7d016e6a" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
       <component group="org.jetbrains.skiko" name="skiko-awt-runtime-windows-x64" version="0.8.18">
          <artifact name="skiko-awt-runtime-windows-x64-0.8.18.jar">
             <sha256 value="509f298a3bc7db4aa7d8b8f750b7339bca681c4247051d02790b036cc145c84f" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
@@ -487,6 +784,14 @@
          </artifact>
          <artifact name="json-20211205.pom">
             <sha256 value="3149da39f2d3bc3850828026510d545c8cb01b1db6bda0c10f298924db05843e" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.json" name="json" version="20240303">
+         <artifact name="json-20240303.jar">
+            <sha256 value="3cf6cd6892e32e2b4c1c39e0f52f5248a2f5b37646fdfbb79a66b46b618414ed" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="json-20240303.pom">
+            <sha256 value="994baf5d89bf4caa5ce968e4c4eab135c8f9783ecf4d2b7b0e9d1c8a4ddf1e4f" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
          </artifact>
       </component>
       <component group="org.sonatype.oss" name="oss-parent" version="7">
