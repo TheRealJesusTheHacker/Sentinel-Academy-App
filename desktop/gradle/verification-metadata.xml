@@ -121,6 +121,14 @@
             <sha256 value="0bbb3bf6d4d22a1bfa3c3c0927c29410af14a0fb26e3b02b93726f5c7e98aafd" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
          </artifact>
       </component>
+      <component group="org.jetbrains.compose" name="compose-gradle-plugin" version="1.7.3">
+         <artifact name="compose-gradle-plugin-1.7.3.jar">
+            <sha256 value="d0fc223b3ccd5d0254d66959b1cc0c153523a26480ef0b03a46c5ab56de922bc" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="compose-gradle-plugin-1.7.3.module">
+            <sha256 value="fecd5ac407c19c9f910cecf765e4608a32af4ad6f4c1955324351b0bb1673b18" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
       <component group="org.jetbrains.compose" name="org.jetbrains.compose.gradle.plugin" version="1.7.3">
          <artifact name="org.jetbrains.compose.gradle.plugin-1.7.3.pom">
             <sha256 value="f426a4bcf3a27d598282ea102e73a3622d927638995f644aa34fc82992e5caeb" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
@@ -129,6 +137,145 @@
       <component group="org.jetbrains.compose.desktop" name="desktop-jvm-windows-x64" version="1.7.3">
          <artifact name="desktop-jvm-windows-x64-1.7.3.pom">
             <sha256 value="fd2a4423351ae25a34319ade123b163847df389ad69ef216b081ef93867797da" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.intellij.deps" name="trove4j" version="1.0.20200330">
+         <artifact name="trove4j-1.0.20200330.jar">
+            <sha256 value="c5fd725bffab51846bf3c77db1383c60aaaebfe1b7fe2f00d23fe1b7df0a439d" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="trove4j-1.0.20200330.pom">
+            <sha256 value="87721cbaa65a3c97d8b1ba9d207840f164c9fe38759fc9ea10ffe26565f8d3e9" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.kotlin" name="compose-compiler-gradle-plugin" version="2.0.20">
+         <artifact name="compose-compiler-gradle-plugin-2.0.20-gradle85.jar">
+            <sha256 value="c0c32475f5284fe7c180caf00bf40b6fa3a3b0e90fec5817b6d020eb10ed29bc" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="compose-compiler-gradle-plugin-2.0.20.module">
+            <sha256 value="4f4b6caa111a6459c52927e9336f831bca83214b6e8989dda61f010185dee6aa" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.kotlin" name="kotlin-build-statistics" version="2.0.20">
+         <artifact name="kotlin-build-statistics-2.0.20.jar">
+            <sha256 value="73a7d71513755b317d2b1b6da766d6e6b7a25dc99dcefe4313325336422ece11" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="kotlin-build-statistics-2.0.20.pom">
+            <sha256 value="d7418ad25c806de836150bdd350b00be6c2d25099e5d741ddfe3f381c52ead8d" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.kotlin" name="kotlin-build-tools-api" version="2.0.20">
+         <artifact name="kotlin-build-tools-api-2.0.20.jar">
+            <sha256 value="57ed50220e78ec39e8a80014330f295e5485b5638c1129af9ed7d53d7858c5c2" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="kotlin-build-tools-api-2.0.20.pom">
+            <sha256 value="9c7ad5868fb2189b1bf4d6c22f6c94983b3a8e1a294e95a5412cb82e0f42ddb2" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.kotlin" name="kotlin-compiler-embeddable" version="2.0.20">
+         <artifact name="kotlin-compiler-embeddable-2.0.20.jar">
+            <sha256 value="a3604bf350c8bcce27102158bbb383fa4d1814bc486aaed59f278eada51ff6ad" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="kotlin-compiler-embeddable-2.0.20.pom">
+            <sha256 value="597043fb8c6527f42999ca04ed352963922cd16e6988aaa52d3db32da1db859d" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.kotlin" name="kotlin-compiler-runner" version="2.0.20">
+         <artifact name="kotlin-compiler-runner-2.0.20.jar">
+            <sha256 value="e03cf04b0340f1ae151210630b5d2915c297988c6e22e4dedb4ea7cfb74acf67" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="kotlin-compiler-runner-2.0.20.pom">
+            <sha256 value="dccdf1ba0c4fcd8bd4230345ae83fa7dbe9282563d8a53fd5e61c5335b5b7180" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.kotlin" name="kotlin-daemon-client" version="2.0.20">
+         <artifact name="kotlin-daemon-client-2.0.20.jar">
+            <sha256 value="73152cc1fd821d07139473abcbf8c7d01d00e68684b961e192eae880dc9c7da4" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="kotlin-daemon-client-2.0.20.pom">
+            <sha256 value="a947117888f4cffb6393d42eaea611b63df589bf29617826ccb7253712bf3ac3" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.kotlin" name="kotlin-daemon-embeddable" version="2.0.20">
+         <artifact name="kotlin-daemon-embeddable-2.0.20.jar">
+            <sha256 value="5bd5113b85ab8528e192e2bb3fc197f5bc3448bcdbd058790b37fd37f4ee57af" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="kotlin-daemon-embeddable-2.0.20.pom">
+            <sha256 value="219828266ea478eeeb42e4f52f96d0b907d8ca4847cf86aae39169ad8b2ea4a5" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.kotlin" name="kotlin-gradle-plugin" version="2.0.20">
+         <artifact name="kotlin-gradle-plugin-2.0.20-gradle85.jar">
+            <sha256 value="8129f62cb7c627b5ce82187e42a6d87c42952bc7ba64b805a3547f6852319662" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="kotlin-gradle-plugin-2.0.20.module">
+            <sha256 value="6813cca41ef0fbf15c88becc401e38706b96944c21b6bec73dd88cf90a0f201e" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.kotlin" name="kotlin-gradle-plugin-annotations" version="2.0.20">
+         <artifact name="kotlin-gradle-plugin-annotations-2.0.20.jar">
+            <sha256 value="8b63b4ffb7ba68e28720569ad47a96cc065c94564ed161eea15ac864887ba4de" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="kotlin-gradle-plugin-annotations-2.0.20.pom">
+            <sha256 value="0fc79a3c883c7db6ec0fa954d5c8a68ae811065226fb85916e1cbff699e5c147" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.kotlin" name="kotlin-gradle-plugin-api" version="2.0.20">
+         <artifact name="kotlin-gradle-plugin-api-2.0.20-gradle85.jar">
+            <sha256 value="0f7357bc5ccc8e3681ec3b4643c70cad2883b246c8b7af7d6d971c41e3934f2d" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="kotlin-gradle-plugin-api-2.0.20.jar">
+            <sha256 value="0f7357bc5ccc8e3681ec3b4643c70cad2883b246c8b7af7d6d971c41e3934f2d" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="kotlin-gradle-plugin-api-2.0.20.module">
+            <sha256 value="089f1208913ad5c6a5334f67bbca48fc7b0afa10afd0bda5153fbcb52cc2a96c" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.kotlin" name="kotlin-gradle-plugin-idea" version="2.0.20">
+         <artifact name="kotlin-gradle-plugin-idea-2.0.20.jar">
+            <sha256 value="c1f4ea0c19267f1eed474b541b07715c49167acfbf027a8a2fd07cbbc81b8e72" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="kotlin-gradle-plugin-idea-2.0.20.module">
+            <sha256 value="c32f14c34497802a8e8d793b2b5d67923e2022539478f366e18a7ef6414ebade" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.kotlin" name="kotlin-gradle-plugin-idea-proto" version="2.0.20">
+         <artifact name="kotlin-gradle-plugin-idea-proto-2.0.20.jar">
+            <sha256 value="09edb027b9a1f3df716271aecad7bb41a1ddbc2f9c11317297900d4f2bdce88c" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="kotlin-gradle-plugin-idea-proto-2.0.20.pom">
+            <sha256 value="c198ab78c266cf3be7a1d24705e5bb1886d4945fdca4f717f54efb86ff4cd74a" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.kotlin" name="kotlin-gradle-plugin-model" version="2.0.20">
+         <artifact name="kotlin-gradle-plugin-model-2.0.20.jar">
+            <sha256 value="514c7f17dc5e54ee5d16a761b364b9d343956bcad49dfd08e085962257737e19" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="kotlin-gradle-plugin-model-2.0.20.module">
+            <sha256 value="1cf9f6d3ec6d305aa089032ac892ffae881cc105003f456f2c15fd3c30320a6e" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.kotlin" name="kotlin-gradle-plugins-bom" version="2.0.20">
+         <artifact name="kotlin-gradle-plugins-bom-2.0.20.module">
+            <sha256 value="1b03231efa7b3b6d31b0936872941f87e27a819c003718b3d09880b76e63d7cd" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="kotlin-gradle-plugins-bom-2.0.20.pom">
+            <sha256 value="4c32eb35094c16359df78deaec11ce523be360407414fa0aecc8aefc67ed4a43" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.kotlin" name="kotlin-klib-commonizer-api" version="2.0.20">
+         <artifact name="kotlin-klib-commonizer-api-2.0.20.jar">
+            <sha256 value="42c42fbe273fa0304e4e17f7392c66b39e91f99d35f85c068b11bdd56b9e99dc" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="kotlin-klib-commonizer-api-2.0.20.pom">
+            <sha256 value="e5fe068c4ebd5c8858c35c39e8623abeb9c86f8a17254742e7f5598e43fada3c" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.kotlin" name="kotlin-native-utils" version="2.0.20">
+         <artifact name="kotlin-native-utils-2.0.20.jar">
+            <sha256 value="c166f2051e91d199e960ffc7b2764485c1510cd17674dd7b8ce3c2fcd06a872b" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="kotlin-native-utils-2.0.20.pom">
+            <sha256 value="98849931fb70916852eaa7c20e6d8faf522c50d77adbbafd9364f526b7cdec42" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
          </artifact>
       </component>
       <component group="org.jetbrains.kotlin" name="kotlin-stdlib" version="1.6.10">
@@ -166,6 +313,30 @@
          </artifact>
          <artifact name="kotlin-stdlib-jdk8-1.6.10.pom">
             <sha256 value="43a649fa737bfb35fa4af4e6de33e2f08a5d19104d7582ea40dbcd2b63790acc" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.kotlin" name="kotlin-tooling-core" version="2.0.20">
+         <artifact name="kotlin-tooling-core-2.0.20.jar">
+            <sha256 value="5b6f148548fe9e074df51f4225344433bf0375ac5b39ffcd3d7bd7d7f602d629" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="kotlin-tooling-core-2.0.20.pom">
+            <sha256 value="5e123111e0107b04664883a0a408c1ff3bdb5d047e4901f82f4c42f10578062d" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.kotlin" name="kotlin-util-io" version="2.0.20">
+         <artifact name="kotlin-util-io-2.0.20.jar">
+            <sha256 value="6464db8d4172c21a17a790b6d1789022ed67adb37c50be6b8b9f582b552b8522" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="kotlin-util-io-2.0.20.pom">
+            <sha256 value="2eb07155fa84178e995639ce7b76917287cae542a35d29b56bb099101d286a3c" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.kotlin" name="kotlin-util-klib" version="2.0.20">
+         <artifact name="kotlin-util-klib-2.0.20.jar">
+            <sha256 value="87dd838dc77782cb9567f1a761499b3e4a50f528c005b2638a2e3e57410a963b" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
+         </artifact>
+         <artifact name="kotlin-util-klib-2.0.20.pom">
+            <sha256 value="7db4d1c3bda6759be27ee937e607e8b1c46958dc08477132fdaeede016e738ff" origin="Verified against Maven Central, 2026-11-14 (Windows CI build fix)"/>
          </artifact>
       </component>
       <component group="org.jetbrains.kotlin.jvm" name="org.jetbrains.kotlin.jvm.gradle.plugin" version="2.0.20">
